@@ -6,6 +6,13 @@ terraform {
       version = "~> 5.0"
     }
   }
+  
+  backend "s3" {
+    bucket  = "jackrea-co-uk-terraform-state"
+    key     = "robotbuilder/terraform.tfstate"
+    region  = "eu-west-2"
+    encrypt = true
+  }
 }
 
 provider "aws" {
