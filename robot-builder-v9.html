@@ -11,7 +11,6 @@
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
-
         gtag('config', 'G-62JLYLHR22');
     </script>
     <style>
@@ -246,7 +245,7 @@
         .control-content {
             overflow: hidden;
             transition: max-height 0.3s ease;
-            max-height: none; /* Default to visible */
+            max-height: none;
         }
         
         .control-group.collapsed .control-content {
@@ -430,11 +429,21 @@
             max-width: 200px;
             text-align: center;
             line-height: 1.3;
+            visibility: hidden;
         }
         
         .tutorial-bubble.show {
             opacity: 1;
             transform: scale(1);
+            pointer-events: auto;
+            visibility: visible;
+        }
+        
+        .tutorial-bubble.hidden {
+            opacity: 0 !important;
+            transform: scale(.8) !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
         }
         
         .tutorial-bubble::after {
@@ -505,14 +514,6 @@
                 display: block;
             }
             
-            /* FORCE tutorial bubble to be visible on mobile */
-            .tutorial-bubble {
-                opacity: 1 !important;
-                transform: scale(1) !important;
-                visibility: visible !important;
-                display: block !important;
-            }
-            
             .header h1 {
                 font-size: 18px;
                 margin-left: 30px;
@@ -577,7 +578,6 @@
                 font-size: 14px;
             }
             
-            /* Make controls more touch-friendly */
             input, select {
                 padding: 8px;
                 font-size: 14px;
@@ -606,8 +606,6 @@
                 grid-template-columns: 1fr;
                 gap: 8px;
             }
-            
-            /* Remove auto-collapse - let users control what they want to see */
         }
         
         @media (max-width: 480px) {
@@ -1063,27 +1061,20 @@
         // Global mobile menu functions
         function toggleMobileMenu() {
             const controls = document.getElementById('controls');
-            const overlay = document.getElementById('mobileOverlay');
-            
             if (controls.classList.contains('mobile-open')) {
                 closeMobileMenu('toggle_button');
             } else {
                 openMobileMenu();
             }
-            
-            // Track mobile menu usage
-            trackMobileInteraction(controls.classList.contains('mobile-open') ? 'menu_close' : 'menu_open');
+            trackMobileInteraction(controls.classList.contains('mobile-open') ? 'menu_open' : 'menu_close');
         }
         
         function openMobileMenu() {
             const controls = document.getElementById('controls');
             const overlay = document.getElementById('mobileOverlay');
-            
             controls.classList.add('mobile-open');
             overlay.classList.add('show');
             document.body.style.overflow = 'hidden';
-            
-            // Hide tutorial bubble when menu opens
             if (window.robotBuilder) {
                 window.robotBuilder.hideTutorialBubble();
                 localStorage.setItem('robotBuilderTutorialSeen', 'true');
@@ -1094,12 +1085,9 @@
         function closeMobileMenu(source = 'unknown') {
             const controls = document.getElementById('controls');
             const overlay = document.getElementById('mobileOverlay');
-            
             controls.classList.remove('mobile-open');
             overlay.classList.remove('show');
             document.body.style.overflow = '';
-            
-            // Track how menu was closed
             trackMobileInteraction('menu_close_' + source);
         }
         
@@ -1107,10 +1095,7 @@
             const group = header.parentElement;
             const groupName = header.textContent.trim();
             const isCollapsing = !group.classList.contains('collapsed');
-            
             group.classList.toggle('collapsed');
-            
-            // Track control group interactions
             trackEvent(isCollapsing ? 'group_collapse' : 'group_expand', 'Control Groups', groupName);
         }
 
@@ -1178,11 +1163,9 @@
                 this.setupWindowResize();
                 this.updateConfigDisplay();
                 
-                // Track page load and initial setup
                 trackEvent('page_load', 'App Lifecycle', navigator.userAgent.includes('Mobile') ? 'mobile' : 'desktop');
                 trackEvent('robot_created', 'Robot Lifecycle', 'initial_robot');
                 
-                // Initialize mobile tutorial if on mobile
                 this.initMobileTutorial();
             }
             
@@ -1223,12 +1206,9 @@
                 window.addEventListener('resize', () => {
                     this.setupCanvasSize();
                     this.drawRobot();
-                    
-                    // Reposition tutorial bubble on resize
                     if (window.innerWidth <= 768) {
                         this.positionTutorialBubble();
                     } else {
-                        // Hide tutorial on desktop
                         this.hideTutorialBubble();
                     }
                 });
@@ -1246,22 +1226,15 @@
                     legs: this.robot.legs,
                     accessories: this.robot.accessories
                 };
-                
                 const jsonString = JSON.stringify(config);
-                return btoa(jsonString).replace(/[+/=]/g, function(match) {
-                    return {'+': '-', '/': '_', '=': ''}[match];
-                });
+                return btoa(jsonString).replace(/[+/=]/g, m => ({'+':'-','/':'_','=':''}[m]));
             }
             
             decodeConfiguration(encodedConfig) {
                 try {
-                    const base64 = encodedConfig.replace(/[-_]/g, function(match) {
-                        return {'-': '+', '_': '/'}[match];
-                    });
-                    
+                    const base64 = encodedConfig.replace(/[-_]/g, m => ({'-':'+' ,'_':'/'}[m]));
                     const padding = 4 - (base64.length % 4);
                     const paddedBase64 = base64 + '='.repeat(padding % 4);
-                    
                     const jsonString = atob(paddedBase64);
                     return JSON.parse(jsonString);
                 } catch (error) {
@@ -1285,24 +1258,18 @@
                     trackConfiguration('config_load_failed', 'invalid_format');
                     return false;
                 }
-                
                 this.robotId = config.id || this.generateUUID();
                 this.robot = { ...config };
-                
                 this.updateUIFromRobot();
                 this.drawRobot();
                 this.updateConfigDisplay();
-                
-                // Close mobile menu if open
                 if (window.innerWidth <= 768) {
                     closeMobileMenu('config_loaded');
                 }
-                
                 return true;
             }
             
             updateUIFromRobot() {
-                // Update all UI controls with robot data
                 document.getElementById('robotName').value = this.robot.name;
                 document.getElementById('displayName').textContent = this.robot.name;
                 
@@ -1404,8 +1371,6 @@
                     this.robot.name = e.target.value;
                     document.getElementById('displayName').textContent = e.target.value || 'UltraBot V9';
                     this.updateConfigDisplay();
-                    
-                    // Track robot naming
                     if (e.target.value.trim() !== '') {
                         trackEvent('robot_named', 'Robot Customization', e.target.value.length > 0 ? 'custom_name' : 'default_name');
                     }
@@ -1477,8 +1442,6 @@
                     }
                     this.drawRobot();
                     this.updateConfigDisplay();
-                    
-                    // Track customization
                     const [component, property] = path.split('.');
                     trackRobotCustomization(component, property || id, value);
                 });
@@ -1489,8 +1452,6 @@
                     this.setNestedValue(path, e.target.value);
                     this.drawRobot();
                     this.updateConfigDisplay();
-                    
-                    // Track color changes
                     const [component, property] = path.split('.');
                     trackRobotCustomization(component, property || id, e.target.value);
                 });
@@ -1502,8 +1463,6 @@
                     if (callback) callback(e.target.value);
                     this.drawRobot();
                     this.updateConfigDisplay();
-                    
-                    // Track selection changes
                     const [component, property] = path.split('.');
                     trackRobotCustomization(component, property || id, e.target.value);
                 });
@@ -1517,8 +1476,6 @@
                     }
                     this.drawRobot();
                     this.updateConfigDisplay();
-                    
-                    // Track accessory toggles
                     trackAccessoryChange(accessoryPath, e.target.checked);
                 });
             }
@@ -1539,89 +1496,49 @@
             }
             
             initMobileTutorial() {
-                console.log('initMobileTutorial called, window width:', window.innerWidth);
-                
-                // FORCE show tutorial on mobile devices - no localStorage check
-                if (window.innerWidth <= 768) {
-                    console.log('Mobile detected, looking for elements...');
-                    
+                if (window.innerWidth <= 768 && !localStorage.getItem('robotTutorialDismissed')) {
                     const bubble = document.getElementById('tutorialBubble');
                     const menuButton = document.querySelector('.menu-toggle');
-                    
-                    console.log('Bubble element:', bubble);
-                    console.log('Menu button element:', menuButton);
-                    
                     if (bubble && menuButton) {
-                        console.log('FORCING tutorial bubble to show!');
-                        
-                        // Position the bubble next to the menu button
                         this.positionTutorialBubble();
-                        
-                        // Show the bubble immediately - NO CONDITIONS
                         setTimeout(() => {
-                            console.log('Adding show and pulse classes to bubble');
-                            bubble.classList.add('show', 'pulse');
-                            trackEvent('tutorial_shown', 'Mobile Interface', 'forced_show');
-                        }, 500);
-                        
-                        // NO AUTO-HIDE - stays until menu is opened
-                        // Tutorial hiding is now handled in openMobileMenu() function
-                    } else {
-                        console.error('Tutorial elements not found!', { bubble, menuButton });
+                            bubble.classList.add('show','pulse');
+                            trackEvent('tutorial_shown', 'Mobile Interface', 'initial_show');
+                        }, 300);
                     }
-                } else {
-                    console.log('Not mobile, skipping tutorial');
                 }
             }
             
             positionTutorialBubble() {
-                console.log('positionTutorialBubble called');
                 const bubble = document.getElementById('tutorialBubble');
                 const menuButton = document.querySelector('.menu-toggle');
-                
                 if (bubble && menuButton) {
-                    console.log('Positioning bubble next to menu button');
                     const buttonRect = menuButton.getBoundingClientRect();
                     const screenWidth = window.innerWidth;
-                    
-                    console.log('Button rect:', buttonRect);
-                    console.log('Screen width:', screenWidth);
-                    
                     bubble.style.position = 'fixed';
                     bubble.style.zIndex = '9999';
-                    
-                    // Ensure bubble doesn't go off screen on narrow devices
                     const bubbleLeft = Math.min(buttonRect.right + 15, screenWidth - 220);
                     bubble.style.left = bubbleLeft + 'px';
                     bubble.style.top = (buttonRect.top + buttonRect.height / 2 - 20) + 'px';
-                    
-                    console.log('Bubble positioned at:', bubbleLeft, (buttonRect.top + buttonRect.height / 2 - 20));
-                    
-                    // Adjust arrow position if bubble is repositioned
                     if (bubbleLeft < buttonRect.right + 15) {
                         bubble.style.setProperty('--arrow-offset', (buttonRect.right + 5 - bubbleLeft) + 'px');
                     } else {
                         bubble.style.removeProperty('--arrow-offset');
                     }
-                } else {
-                    console.error('Could not position bubble - missing elements');
                 }
             }
             
             hideTutorialBubble() {
-                console.log('Hiding tutorial bubble');
                 const bubble = document.getElementById('tutorialBubble');
                 if (bubble) {
-                    bubble.classList.remove('show', 'pulse');
-                    bubble.style.display = 'none'; // Force hide to override CSS
-                    bubble.style.opacity = '0';
-                    bubble.style.visibility = 'hidden';
+                    bubble.classList.remove('show','pulse');
+                    bubble.classList.add('hidden');
+                    localStorage.setItem('robotTutorialDismissed','1');
                 }
             }
             
             drawRobot() {
                 this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-                
                 this.ctx.save();
                 this.ctx.scale(this.scale, this.scale);
                 
@@ -1645,15 +1562,12 @@
                 this.ctx.restore();
             }
             
-            // All drawing methods from V8 (keeping same implementation)
             drawBendableLegs(bodyY) {
                 this.ctx.fillStyle = this.robot.legs.color;
                 this.ctx.strokeStyle = '#2c3e50';
                 this.ctx.lineWidth = 2;
-                
                 const hipY = bodyY + this.robot.body.height/2;
                 const legSpacing = this.robot.body.width * 0.3;
-                
                 this.drawLeg(this.centerX/this.scale - legSpacing, hipY, this.robot.legs.left.kneeAngle, 'left');
                 this.drawLeg(this.centerX/this.scale + legSpacing, hipY, this.robot.legs.right.kneeAngle, 'right');
             }
@@ -1662,52 +1576,28 @@
                 const thighLength = this.robot.legs.thighLength;
                 const shinLength = this.robot.legs.shinLength;
                 const width = this.robot.legs.width;
-                
                 const kneeX = hipX;
                 const kneeY = hipY + thighLength;
-                
                 const kneeRad = (kneeAngle * Math.PI) / 180;
                 const footX = kneeX + shinLength * Math.sin(kneeRad);
                 const footY = kneeY + shinLength * Math.cos(kneeRad);
-                
                 this.drawLegSegment(hipX, hipY, kneeX, kneeY, width);
                 this.drawLegSegment(kneeX, kneeY, footX, footY, width);
-                
-                this.ctx.beginPath();
-                this.ctx.arc(hipX, hipY, width/2 + 2, 0, Math.PI * 2);
-                this.ctx.fill();
-                this.ctx.stroke();
-                
-                this.ctx.beginPath();
-                this.ctx.arc(kneeX, kneeY, width/2 + 1, 0, Math.PI * 2);
-                this.ctx.fill();
-                this.ctx.stroke();
-                
-                this.ctx.beginPath();
-                this.ctx.arc(footX, footY, width/2, 0, Math.PI * 2);
-                this.ctx.fill();
-                this.ctx.stroke();
-                
-                if (side === 'left') {
-                    this.leftFootX = footX;
-                    this.leftFootY = footY;
-                } else {
-                    this.rightFootX = footX;
-                    this.rightFootY = footY;
-                }
+                this.ctx.beginPath(); this.ctx.arc(hipX, hipY, width/2 + 2, 0, Math.PI * 2); this.ctx.fill(); this.ctx.stroke();
+                this.ctx.beginPath(); this.ctx.arc(kneeX, kneeY, width/2 + 1, 0, Math.PI * 2); this.ctx.fill(); this.ctx.stroke();
+                this.ctx.beginPath(); this.ctx.arc(footX, footY, width/2, 0, Math.PI * 2); this.ctx.fill(); this.ctx.stroke();
+                if (side === 'left') { this.leftFootX = footX; this.leftFootY = footY; }
+                else { this.rightFootX = footX; this.rightFootY = footY; }
             }
             
             drawLegSegment(x1, y1, x2, y2, width) {
                 const angle = Math.atan2(y2 - y1, x2 - x1);
                 const length = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
-                
                 this.ctx.save();
                 this.ctx.translate(x1, y1);
                 this.ctx.rotate(angle);
-                
                 this.ctx.fillRect(0, -width/2, length, width);
                 this.ctx.strokeRect(0, -width/2, length, width);
-                
                 this.ctx.restore();
             }
             
@@ -1715,20 +1605,15 @@
                 const shoulderY = bodyY - this.robot.body.height/4;
                 const shoulderOffset = this.robot.body.width/2 + 5;
                 const size = this.robot.accessories.laserSize;
-                
                 this.ctx.fillStyle = this.robot.accessories.laserColor;
                 this.ctx.strokeStyle = '#2c3e50';
                 this.ctx.lineWidth = 2;
-                
                 this.ctx.fillRect(this.centerX/this.scale - shoulderOffset - size, shoulderY - size/2, size * 2, size);
                 this.ctx.strokeRect(this.centerX/this.scale - shoulderOffset - size, shoulderY - size/2, size * 2, size);
-                
                 this.ctx.fillRect(this.centerX/this.scale + shoulderOffset - size, shoulderY - size/2, size * 2, size);
                 this.ctx.strokeRect(this.centerX/this.scale + shoulderOffset - size, shoulderY - size/2, size * 2, size);
-                
                 this.ctx.fillStyle = '#34495e';
                 const barrelLength = size/2;
-                
                 this.ctx.fillRect(this.centerX/this.scale - shoulderOffset - size - barrelLength, shoulderY - 2, barrelLength, 4);
                 this.ctx.fillRect(this.centerX/this.scale + shoulderOffset + size, shoulderY - 2, barrelLength, 4);
             }
@@ -1738,16 +1623,12 @@
                 const panelHeight = this.robot.body.height * 0.3;
                 const positionPercent = this.robot.accessories.panelPosition / 100;
                 const panelY = bodyY - this.robot.body.height/2 + (this.robot.body.height - panelHeight) * positionPercent;
-                
                 this.ctx.fillStyle = this.robot.accessories.panelColor;
                 this.ctx.strokeStyle = '#2c3e50';
                 this.ctx.lineWidth = 1;
-                
                 this.ctx.fillRect(this.centerX/this.scale - panelWidth/2, panelY, panelWidth, panelHeight);
                 this.ctx.strokeRect(this.centerX/this.scale - panelWidth/2, panelY, panelWidth, panelHeight);
-                
                 this.ctx.strokeStyle = '#7f8c8d';
-                this.ctx.lineWidth = 1;
                 for (let i = 1; i < 4; i++) {
                     const lineX = this.centerX/this.scale - panelWidth/2 + (panelWidth/4) * i;
                     this.ctx.beginPath();
@@ -1761,19 +1642,15 @@
                 const startX = this.centerX/this.scale;
                 const startY = headY - this.robot.head.size/2 - 5;
                 const height = this.robot.accessories.antennaHeight;
-                
                 this.ctx.strokeStyle = '#34495e';
                 this.ctx.lineWidth = 3;
                 this.ctx.lineCap = 'round';
-                
                 this.ctx.beginPath();
-                
                 switch (this.robot.accessories.antennaStyle) {
                     case 'straight':
                         this.ctx.moveTo(startX, startY);
                         this.ctx.lineTo(startX, startY - height);
                         break;
-                        
                     case 'zigzag':
                         this.ctx.moveTo(startX, startY);
                         for (let i = 0; i < height; i += 5) {
@@ -1781,7 +1658,6 @@
                             this.ctx.lineTo(x, startY - i);
                         }
                         break;
-                        
                     case 'coil':
                         const coils = 8;
                         const coilHeight = height / coils;
@@ -1794,9 +1670,7 @@
                         }
                         break;
                 }
-                
                 this.ctx.stroke();
-                
                 this.ctx.fillStyle = '#e74c3c';
                 this.ctx.beginPath();
                 this.ctx.arc(startX, startY - height, 2, 0, Math.PI * 2);
@@ -1807,16 +1681,12 @@
                 const displayWidth = this.robot.body.width * 0.4;
                 const displayHeight = this.robot.body.height * 0.25;
                 const displayY = bodyY - displayHeight/2;
-                
                 this.ctx.fillStyle = '#2c3e50';
                 this.ctx.fillRect(this.centerX/this.scale - displayWidth/2, displayY, displayWidth, displayHeight);
-                
                 this.ctx.fillStyle = this.robot.accessories.displayColor;
                 this.ctx.fillRect(this.centerX/this.scale - displayWidth/2 + 2, displayY + 2, displayWidth - 4, displayHeight - 4);
-                
                 this.ctx.strokeStyle = '#34495e';
                 this.ctx.lineWidth = 1;
-                
                 switch (this.robot.accessories.displayPattern) {
                     case 'grid':
                         for (let i = 1; i < 4; i++) {
@@ -1834,7 +1704,6 @@
                             this.ctx.stroke();
                         }
                         break;
-                        
                     case 'waves':
                         this.ctx.beginPath();
                         for (let x = 0; x < displayWidth - 4; x += 2) {
@@ -1844,7 +1713,6 @@
                         }
                         this.ctx.stroke();
                         break;
-                        
                     case 'bars':
                         for (let i = 0; i < 5; i++) {
                             const barHeight = (Math.random() * 0.7 + 0.3) * (displayHeight - 8);
@@ -1864,20 +1732,16 @@
                 this.ctx.strokeStyle = this.robot.accessories.wireColor;
                 this.ctx.lineWidth = this.robot.accessories.wireThickness;
                 this.ctx.lineCap = 'round';
-                
                 this.ctx.beginPath();
                 this.ctx.moveTo(this.centerX/this.scale - 10, headY + this.robot.head.size/3);
                 this.ctx.quadraticCurveTo(this.centerX/this.scale - 20, bodyY - this.robot.body.height/3, this.centerX/this.scale - 5, bodyY - this.robot.body.height/4);
                 this.ctx.stroke();
-                
                 const shoulderY = bodyY - this.robot.body.height/4;
                 const bodyEdge = this.robot.body.width/2;
-                
                 this.ctx.beginPath();
                 this.ctx.moveTo(this.centerX/this.scale - bodyEdge/2, shoulderY);
                 this.ctx.quadraticCurveTo(this.centerX/this.scale - bodyEdge, shoulderY - 10, this.centerX/this.scale - bodyEdge, shoulderY);
                 this.ctx.stroke();
-                
                 this.ctx.beginPath();
                 this.ctx.moveTo(this.centerX/this.scale + bodyEdge/2, shoulderY);
                 this.ctx.quadraticCurveTo(this.centerX/this.scale + bodyEdge, shoulderY - 10, this.centerX/this.scale + bodyEdge, shoulderY);
@@ -1887,10 +1751,8 @@
             drawUtilityBelt(bodyY) {
                 const beltY = bodyY + this.robot.body.height * 0.3;
                 const beltWidth = this.robot.body.width + 10;
-                
                 this.ctx.fillStyle = this.robot.accessories.beltColor;
                 this.ctx.fillRect(this.centerX/this.scale - beltWidth/2, beltY - 4, beltWidth, 8);
-                
                 this.ctx.fillStyle = '#654321';
                 for (let i = 0; i < 3; i++) {
                     const pouchX = this.centerX/this.scale - 20 + i * 20;
@@ -1903,11 +1765,9 @@
                 this.ctx.fillStyle = this.robot.neck.color;
                 this.ctx.strokeStyle = '#2c3e50';
                 this.ctx.lineWidth = 2;
-                
                 const neckWidth = this.robot.head.size * 0.4;
                 const neckStartY = bodyY - this.robot.body.height/2;
                 const neckEndY = neckStartY - this.robot.neck.length;
-                
                 this.ctx.fillRect(this.centerX/this.scale - neckWidth/2, neckEndY, neckWidth, this.robot.neck.length);
                 this.ctx.strokeRect(this.centerX/this.scale - neckWidth/2, neckEndY, neckWidth, this.robot.neck.length);
             }
@@ -1916,9 +1776,7 @@
                 this.ctx.fillStyle = this.robot.head.color;
                 this.ctx.strokeStyle = '#2c3e50';
                 this.ctx.lineWidth = 2;
-                
                 const size = this.robot.head.size;
-                
                 switch(this.robot.head.shape) {
                     case 'round':
                         this.ctx.beginPath();
@@ -1935,7 +1793,6 @@
                         this.ctx.strokeRect(this.centerX/this.scale - size/2, y - size/3, size, size * 0.7);
                         break;
                 }
-                
                 this.drawEyes(y);
                 this.drawMouth(y);
             }
@@ -1944,11 +1801,9 @@
                 this.ctx.fillStyle = '#2c3e50';
                 const eyeSize = 4;
                 const eyeOffset = this.robot.head.size * 0.2;
-                
                 this.ctx.beginPath();
                 this.ctx.arc(this.centerX/this.scale - eyeOffset, headY - 5, eyeSize, 0, Math.PI * 2);
                 this.ctx.fill();
-                
                 this.ctx.beginPath();
                 this.ctx.arc(this.centerX/this.scale + eyeOffset, headY - 5, eyeSize, 0, Math.PI * 2);
                 this.ctx.fill();
@@ -1958,12 +1813,9 @@
                 this.ctx.strokeStyle = '#2c3e50';
                 this.ctx.lineWidth = 3;
                 this.ctx.lineCap = 'round';
-                
                 const mouthWidth = this.robot.head.size * 0.3;
                 const mouthY = headY + this.robot.head.size * 0.15;
-                
                 this.ctx.beginPath();
-                
                 switch(this.robot.mouth.expression) {
                     case 'smile':
                         this.ctx.arc(this.centerX/this.scale, mouthY - 8, mouthWidth/2, 0.2 * Math.PI, 0.8 * Math.PI);
@@ -1977,7 +1829,6 @@
                         this.ctx.lineTo(this.centerX/this.scale + mouthWidth/2, mouthY);
                         break;
                 }
-                
                 this.ctx.stroke();
             }
             
@@ -1985,14 +1836,12 @@
                 this.ctx.fillStyle = this.robot.body.color;
                 this.ctx.strokeStyle = '#2c3e50';
                 this.ctx.lineWidth = 2;
-                
                 this.ctx.fillRect(
                     this.centerX/this.scale - this.robot.body.width/2,
                     y - this.robot.body.height/2,
                     this.robot.body.width,
                     this.robot.body.height
                 );
-                
                 this.ctx.strokeRect(
                     this.centerX/this.scale - this.robot.body.width/2,
                     y - this.robot.body.height/2,
@@ -2005,10 +1854,8 @@
                 this.ctx.fillStyle = this.robot.arms.color;
                 this.ctx.strokeStyle = '#2c3e50';
                 this.ctx.lineWidth = 2;
-                
                 const shoulderY = bodyY - this.robot.body.height/4;
                 const bodyEdge = this.robot.body.width/2;
-                
                 this.drawArm(this.centerX/this.scale - bodyEdge, shoulderY, this.robot.arms.left.shoulderAngle, this.robot.arms.left.elbowAngle, 'left');
                 this.drawArm(this.centerX/this.scale + bodyEdge, shoulderY, this.robot.arms.right.shoulderAngle, this.robot.arms.right.elbowAngle, 'right');
             }
@@ -2017,53 +1864,29 @@
                 const upperLength = this.robot.arms.upperLength;
                 const forearmLength = this.robot.arms.forearmLength;
                 const width = this.robot.arms.width;
-                
                 const shoulderRad = (shoulderAngle * Math.PI) / 180;
                 const elbowX = shoulderX + upperLength * Math.cos(shoulderRad);
                 const elbowY = shoulderY + upperLength * Math.sin(shoulderRad);
-                
                 const forearmRad = shoulderRad + (elbowAngle * Math.PI) / 180;
                 const handX = elbowX + forearmLength * Math.cos(forearmRad);
                 const handY = elbowY + forearmLength * Math.sin(forearmRad);
-                
                 this.drawArmSegment(shoulderX, shoulderY, elbowX, elbowY, width);
                 this.drawArmSegment(elbowX, elbowY, handX, handY, width);
-                
-                this.ctx.beginPath();
-                this.ctx.arc(shoulderX, shoulderY, width/2 + 2, 0, Math.PI * 2);
-                this.ctx.fill();
-                this.ctx.stroke();
-                
-                this.ctx.beginPath();
-                this.ctx.arc(elbowX, elbowY, width/2 + 1, 0, Math.PI * 2);
-                this.ctx.fill();
-                this.ctx.stroke();
-                
-                this.ctx.beginPath();
-                this.ctx.arc(handX, handY, width/2, 0, Math.PI * 2);
-                this.ctx.fill();
-                this.ctx.stroke();
-                
-                if (side === 'left') {
-                    this.leftHandX = handX;
-                    this.leftHandY = handY;
-                } else {
-                    this.rightHandX = handX;
-                    this.rightHandY = handY;
-                }
+                this.ctx.beginPath(); this.ctx.arc(shoulderX, shoulderY, width/2 + 2, 0, Math.PI * 2); this.ctx.fill(); this.ctx.stroke();
+                this.ctx.beginPath(); this.ctx.arc(elbowX, elbowY, width/2 + 1, 0, Math.PI * 2); this.ctx.fill(); this.ctx.stroke();
+                this.ctx.beginPath(); this.ctx.arc(handX, handY, width/2, 0, Math.PI * 2); this.ctx.fill(); this.ctx.stroke();
+                if (side === 'left') { this.leftHandX = handX; this.leftHandY = handY; }
+                else { this.rightHandX = handX; this.rightHandY = handY; }
             }
             
             drawArmSegment(x1, y1, x2, y2, width) {
                 const angle = Math.atan2(y2 - y1, x2 - x1);
                 const length = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
-                
                 this.ctx.save();
                 this.ctx.translate(x1, y1);
                 this.ctx.rotate(angle);
-                
                 this.ctx.fillRect(0, -width/2, length, width);
                 this.ctx.strokeRect(0, -width/2, length, width);
-                
                 this.ctx.restore();
             }
             
@@ -2077,18 +1900,14 @@
             drawGlasses(headY) {
                 this.ctx.strokeStyle = '#2c3e50';
                 this.ctx.lineWidth = 3;
-                
                 const glassSize = this.robot.head.size * 0.3;
                 const glassOffset = this.robot.head.size * 0.25;
-                
                 this.ctx.beginPath();
                 this.ctx.arc(this.centerX/this.scale - glassOffset, headY, glassSize, 0, Math.PI * 2);
                 this.ctx.stroke();
-                
                 this.ctx.beginPath();
                 this.ctx.arc(this.centerX/this.scale + glassOffset, headY, glassSize, 0, Math.PI * 2);
                 this.ctx.stroke();
-                
                 this.ctx.beginPath();
                 this.ctx.moveTo(this.centerX/this.scale - glassOffset + glassSize, headY);
                 this.ctx.lineTo(this.centerX/this.scale + glassOffset - glassSize, headY);
@@ -2097,34 +1916,26 @@
             
             drawShoes() {
                 if (!this.leftFootX || !this.rightFootX) return;
-                
                 this.ctx.fillStyle = this.robot.accessories.shoeColor;
                 this.ctx.strokeStyle = '#2c3e50';
                 this.ctx.lineWidth = 2;
-                
                 const shoeWidth = this.robot.legs.width + 10;
                 const shoeHeight = 15;
-                
                 this.ctx.fillRect(this.leftFootX - shoeWidth/2, this.leftFootY, shoeWidth, shoeHeight);
                 this.ctx.strokeRect(this.leftFootX - shoeWidth/2, this.leftFootY, shoeWidth, shoeHeight);
-                
                 this.ctx.fillRect(this.rightFootX - shoeWidth/2, this.rightFootY, shoeWidth, shoeHeight);
                 this.ctx.strokeRect(this.rightFootX - shoeWidth/2, this.rightFootY, shoeWidth, shoeHeight);
             }
             
             drawGuns() {
                 if (!this.leftHandX || !this.rightHandX) return;
-                
                 this.ctx.fillStyle = '#34495e';
                 this.ctx.strokeStyle = '#2c3e50';
                 this.ctx.lineWidth = 2;
-                
                 const gunLength = 25;
                 const gunWidth = 8;
-                
                 this.ctx.fillRect(this.leftHandX - gunLength/2, this.leftHandY - gunWidth/2, gunLength, gunWidth);
                 this.ctx.strokeRect(this.leftHandX - gunLength/2, this.leftHandY - gunWidth/2, gunLength, gunWidth);
-                
                 this.ctx.fillRect(this.rightHandX - gunLength/2, this.rightHandY - gunWidth/2, gunLength, gunWidth);
                 this.ctx.strokeRect(this.rightHandX - gunLength/2, this.rightHandY - gunWidth/2, gunLength, gunWidth);
             }
@@ -2133,28 +1944,19 @@
                 this.ctx.fillStyle = '#ffff00';
                 this.ctx.strokeStyle = '#ffa500';
                 this.ctx.lineWidth = 2;
-                
                 const lightSize = 6;
-                
                 this.ctx.beginPath();
                 this.ctx.arc(this.centerX/this.scale - this.robot.head.size/3, headY - this.robot.head.size/3, lightSize, 0, Math.PI * 2);
-                this.ctx.fill();
-                this.ctx.stroke();
-                
+                this.ctx.fill(); this.ctx.stroke();
                 this.ctx.beginPath();
                 this.ctx.arc(this.centerX/this.scale + this.robot.head.size/3, headY - this.robot.head.size/3, lightSize, 0, Math.PI * 2);
-                this.ctx.fill();
-                this.ctx.stroke();
-                
+                this.ctx.fill(); this.ctx.stroke();
                 this.ctx.beginPath();
                 this.ctx.arc(this.centerX/this.scale, bodyY - this.robot.body.height/3, lightSize, 0, Math.PI * 2);
-                this.ctx.fill();
-                this.ctx.stroke();
-                
+                this.ctx.fill(); this.ctx.stroke();
                 this.ctx.beginPath();
                 this.ctx.arc(this.centerX/this.scale, bodyY + this.robot.body.height/3, lightSize, 0, Math.PI * 2);
-                this.ctx.fill();
-                this.ctx.stroke();
+                this.ctx.fill(); this.ctx.stroke();
             }
         }
         
@@ -2165,8 +1967,6 @@
                 const feedback = document.getElementById('copyFeedback');
                 feedback.classList.add('show');
                 setTimeout(() => feedback.classList.remove('show'), 1000);
-                
-                // Track successful copy
                 trackConfiguration('config_copied', 'success');
             }).catch(err => {
                 alert('Failed to copy configuration to clipboard');
@@ -2177,7 +1977,6 @@
         function shareConfig() {
             const config = window.robotBuilder.currentConfig;
             const robotName = window.robotBuilder.robot.name;
-            
             if (navigator.share) {
                 navigator.share({
                     title: `${robotName} - Robot Configuration`,
@@ -2203,13 +2002,11 @@
         function loadConfig() {
             const input = document.getElementById('loadInput');
             const configString = input.value.trim();
-            
             if (!configString) {
                 alert('Please paste a robot configuration string');
                 trackConfiguration('config_load_failed', 'empty_input');
                 return;
             }
-            
             const success = window.robotBuilder.loadConfigurationFromString(configString);
             if (success !== false) {
                 trackConfiguration('config_loaded', 'success');
@@ -2219,23 +2016,16 @@
         }
         
         document.addEventListener('DOMContentLoaded', () => {
-            // Track DOM load timing
             const startTime = performance.now();
-            
             window.robotBuilder = new RobotBuilderV9();
-            
+            document.getElementById('tutorialBubble')
+              ?.addEventListener('click', () => window.robotBuilder.hideTutorialBubble());
             const endTime = performance.now();
             const loadTime = Math.round(endTime - startTime);
-            
-            // Track app initialization performance
             trackEvent('app_initialized', 'Performance', 'initialization_time', loadTime);
-            
-            // Track screen size for responsive analytics
             const screenSize = window.innerWidth <= 768 ? 'mobile' : 
                               window.innerWidth <= 1024 ? 'tablet' : 'desktop';
             trackEvent('screen_size', 'Device Info', screenSize, window.innerWidth);
-            
-            // Track canvas support
             const canvas = document.createElement('canvas');
             const hasCanvas = !!(canvas.getContext && canvas.getContext('2d'));
             trackEvent('canvas_support', 'Browser Capabilities', hasCanvas ? 'supported' : 'not_supported');
@@ -2243,3 +2033,4 @@
     </script>
 </body>
 </html>
+
