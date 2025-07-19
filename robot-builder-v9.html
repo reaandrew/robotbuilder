@@ -545,11 +545,10 @@
                     <h3><span class="config-icon">🔗</span> Robot Configuration</h3>
                     <div class="config-display" id="configDisplay">Loading...</div>
                     <div class="config-buttons">
-                        <button class="config-button copy-btn" id="copyBtn" onclick="copyConfig()">
+                        <button class="config-button copy-btn" id="copyBtn" onclick="copyConfig()" style="grid-column: 1 / -1;">
                             Copy Config
                             <div class="copy-feedback" id="copyFeedback">Copied!</div>
                         </button>
-                        <button class="config-button share-btn" id="shareBtn" onclick="shareConfig()">Share Robot</button>
                     </div>
                     <div class="load-section">
                         <input type="text" class="load-input" id="loadInput" placeholder="Paste robot configuration here...">
