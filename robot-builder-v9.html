@@ -440,7 +440,7 @@
             content: '';
             position: absolute;
             top: 50%;
-            left: -10px;
+            left: var(--arrow-offset, -10px);
             transform: translateY(-50%);
             width: 0;
             height: 0;
@@ -461,25 +461,31 @@
         /* Mobile Close Button */
         .mobile-close-btn {
             display: none;
-            position: absolute;
+            position: fixed;
             top: 15px;
             right: 15px;
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.95);
             border: none;
             border-radius: 50%;
             width: 40px;
             height: 40px;
             font-size: 20px;
             cursor: pointer;
-            z-index: 1001;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            z-index: 1002;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             transition: all 0.3s ease;
             color: #2c3e50;
+            backdrop-filter: blur(5px);
         }
         
         .mobile-close-btn:hover {
             background: white;
             transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+        }
+        
+        .mobile-close-btn:active {
+            transform: scale(0.95);
         }
         
         /* Mobile styles */
@@ -515,6 +521,7 @@
             
             .controls.mobile-open .mobile-close-btn {
                 display: block;
+                right: calc(15% + 15px); /* Position within the visible controls panel */
             }
             
             .mobile-overlay {
@@ -1518,11 +1525,11 @@
                         // Position the bubble next to the menu button
                         this.positionTutorialBubble();
                         
-                        // Show the bubble after a short delay
+                        // Show the bubble immediately
                         setTimeout(() => {
                             bubble.classList.add('show', 'pulse');
                             trackEvent('tutorial_shown', 'Mobile Interface', 'first_visit');
-                        }, 1000);
+                        }, 100);
                         
                         // Auto-hide after 8 seconds
                         setTimeout(() => {
@@ -1545,9 +1552,21 @@
                 
                 if (bubble && menuButton) {
                     const buttonRect = menuButton.getBoundingClientRect();
+                    const screenWidth = window.innerWidth;
+                    
                     bubble.style.position = 'fixed';
-                    bubble.style.left = (buttonRect.right + 15) + 'px';
+                    
+                    // Ensure bubble doesn't go off screen on narrow devices
+                    const bubbleLeft = Math.min(buttonRect.right + 15, screenWidth - 220);
+                    bubble.style.left = bubbleLeft + 'px';
                     bubble.style.top = (buttonRect.top + buttonRect.height / 2 - 20) + 'px';
+                    
+                    // Adjust arrow position if bubble is repositioned
+                    if (bubbleLeft < buttonRect.right + 15) {
+                        bubble.style.setProperty('--arrow-offset', (buttonRect.right + 5 - bubbleLeft) + 'px');
+                    } else {
+                        bubble.style.removeProperty('--arrow-offset');
+                    }
                 }
             }
             
