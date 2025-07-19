@@ -1082,6 +1082,13 @@
             controls.classList.add('mobile-open');
             overlay.classList.add('show');
             document.body.style.overflow = 'hidden';
+            
+            // Hide tutorial bubble when menu opens
+            if (window.robotBuilder) {
+                window.robotBuilder.hideTutorialBubble();
+                localStorage.setItem('robotBuilderTutorialSeen', 'true');
+                trackEvent('tutorial_dismissed', 'Mobile Interface', 'menu_opened');
+            }
         }
         
         function closeMobileMenu(source = 'unknown') {
@@ -1557,15 +1564,8 @@
                             trackEvent('tutorial_shown', 'Mobile Interface', 'forced_show');
                         }, 500);
                         
-                        // NO AUTO-HIDE - stays until menu is clicked
-                        
-                        // Hide ONLY when menu button is clicked
-                        menuButton.addEventListener('click', () => {
-                            console.log('Menu button clicked - hiding tutorial');
-                            this.hideTutorialBubble();
-                            localStorage.setItem('robotBuilderTutorialSeen', 'true');
-                            trackEvent('tutorial_dismissed', 'Mobile Interface', 'menu_clicked');
-                        }, { once: true });
+                        // NO AUTO-HIDE - stays until menu is opened
+                        // Tutorial hiding is now handled in openMobileMenu() function
                     } else {
                         console.error('Tutorial elements not found!', { bubble, menuButton });
                     }
@@ -1609,8 +1609,14 @@
             }
             
             hideTutorialBubble() {
+                console.log('Hiding tutorial bubble');
                 const bubble = document.getElementById('tutorialBubble');
-                bubble.classList.remove('show', 'pulse');
+                if (bubble) {
+                    bubble.classList.remove('show', 'pulse');
+                    bubble.style.display = 'none'; // Force hide to override CSS
+                    bubble.style.opacity = '0';
+                    bubble.style.visibility = 'hidden';
+                }
             }
             
             drawRobot() {
