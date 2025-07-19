@@ -2333,6 +2333,7 @@
                     const frownGeometry = new THREE.TorusGeometry(mouthWidth/2, 1.5, 8, 16, Math.PI);
                     const frown = new THREE.Mesh(frownGeometry, mouthMaterial);
                     frown.position.set(0, mouthY + 8, robot.head.size/2);
+                    frown.rotation.x = Math.PI; // Flip to make it a downward frown
                     group.add(frown);
                     break;
                 case 'flat':
@@ -2366,6 +2367,10 @@
                 createChestDisplay3D(group, robot);
             }
             
+            if (robot.accessories.accessPanel) {
+                createAccessPanel3D(group, robot);
+            }
+            
             return group;
         }
         
@@ -2384,11 +2389,15 @@
             const elbowRad = (elbowAngle * Math.PI) / 180;
             
             // Calculate positions based on angles (matching 2D logic)
-            const elbowX = xOffset + robot.arms.upperLength * Math.cos(shoulderRad);
-            const elbowY = shoulderY + robot.arms.upperLength * Math.sin(shoulderRad);
+            // Invert angles for both arms to match 2D behavior
+            const adjustedShoulderRad = -shoulderRad;
+            const adjustedElbowRad = -elbowRad;
+            
+            const elbowX = xOffset + robot.arms.upperLength * Math.cos(adjustedShoulderRad);
+            const elbowY = shoulderY + robot.arms.upperLength * Math.sin(adjustedShoulderRad);
             const elbowZ = 0;
             
-            const forearmRad = shoulderRad + elbowRad;
+            const forearmRad = adjustedShoulderRad + adjustedElbowRad;
             const handX = elbowX + robot.arms.forearmLength * Math.cos(forearmRad);
             const handY = elbowY + robot.arms.forearmLength * Math.sin(forearmRad);
             const handZ = 0;
@@ -2409,7 +2418,7 @@
                 (shoulderY + elbowY) / 2,
                 0
             );
-            upperArm.rotation.z = shoulderRad + Math.PI/2; // Add PI/2 because cylinder is vertical by default
+            upperArm.rotation.z = adjustedShoulderRad + Math.PI/2; // Add PI/2 because cylinder is vertical by default
             group.add(upperArm);
             
             // Forearm
@@ -2638,6 +2647,37 @@
             const display = new THREE.Mesh(displayGeometry, displayMaterial);
             display.position.z = robot.body.width * 0.3 + 1;
             group.add(display);
+        }
+        
+        function createAccessPanel3D(group, robot) {
+            const panelWidth = robot.body.width * 0.6;
+            const panelHeight = robot.body.height * 0.3;
+            const positionPercent = robot.accessories.panelPosition / 100;
+            const panelY = (robot.body.height - panelHeight) * positionPercent - robot.body.height/2;
+            
+            // Main panel
+            const panelGeometry = new THREE.BoxGeometry(panelWidth, panelHeight, 4);
+            const panelMaterial = new THREE.MeshPhongMaterial({ 
+                color: robot.accessories.panelColor,
+                shininess: 30
+            });
+            const panel = new THREE.Mesh(panelGeometry, panelMaterial);
+            panel.position.set(0, panelY + panelHeight/2, robot.body.width * 0.3 + 2);
+            panel.castShadow = true;
+            group.add(panel);
+            
+            // Panel lines/details
+            const lineMaterial = new THREE.MeshPhongMaterial({ color: 0x7f8c8d });
+            for (let i = 1; i < 4; i++) {
+                const lineGeometry = new THREE.BoxGeometry(1, panelHeight - 10, 1);
+                const line = new THREE.Mesh(lineGeometry, lineMaterial);
+                line.position.set(
+                    -panelWidth/2 + (panelWidth/4) * i,
+                    panelY + panelHeight/2,
+                    robot.body.width * 0.3 + 4
+                );
+                group.add(line);
+            }
         }
         
         function update3DRobot() {
