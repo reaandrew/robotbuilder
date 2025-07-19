@@ -458,34 +458,44 @@
             50% { transform: scale(1.05); }
         }
         
-        /* Mobile Close Button */
-        .mobile-close-btn {
+        /* Mobile Close Bar */
+        .mobile-close-bar {
             display: none;
-            position: fixed;
-            top: 15px;
-            right: 15px;
-            background: rgba(255, 255, 255, 0.95);
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            font-size: 20px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 1001;
             cursor: pointer;
-            z-index: 1002;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             transition: all 0.3s ease;
-            color: #2c3e50;
-            backdrop-filter: blur(5px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-bottom: 1px solid rgba(255,255,255,0.2);
         }
         
-        .mobile-close-btn:hover {
-            background: white;
-            transform: scale(1.1);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+        .mobile-close-bar:hover {
+            background: linear-gradient(135deg, #2980b9, #1c5d8a);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
         
-        .mobile-close-btn:active {
-            transform: scale(0.95);
+        .mobile-close-bar:active {
+            transform: translateY(0);
+        }
+        
+        .close-bar-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .close-icon {
+            font-size: 18px;
+            font-weight: bold;
         }
         
         /* Mobile styles */
@@ -510,18 +520,25 @@
                 width: 85%;
                 height: 100vh;
                 z-index: 1000;
-                padding-top: 60px;
                 transition: left 0.3s ease;
                 box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+                overflow-y: auto;
             }
             
             .controls.mobile-open {
                 left: 0;
             }
             
-            .controls.mobile-open .mobile-close-btn {
+            .controls.mobile-open .mobile-close-bar {
                 display: block;
-                right: calc(15% + 15px); /* Position within the visible controls panel */
+            }
+            
+            .controls.mobile-open .config-section {
+                margin-top: 0;
+            }
+            
+            .controls.mobile-open .control-group:first-of-type {
+                margin-top: 15px;
             }
             
             .mobile-overlay {
@@ -626,7 +643,12 @@
         
         <div class="main-content">
             <div class="controls" id="controls">
-                <button class="mobile-close-btn" onclick="closeMobileMenu('close_button')">✕</button>
+                <div class="mobile-close-bar" onclick="closeMobileMenu('close_bar')">
+                    <div class="close-bar-content">
+                        <span class="close-icon">✕</span>
+                        <span>Close Controls</span>
+                    </div>
+                </div>
                 <div class="config-section">
                     <h3><span class="config-icon">🔗</span> Robot Configuration</h3>
                     <div class="config-display" id="configDisplay">Loading...</div>
@@ -1519,9 +1541,12 @@
                     const menuButton = document.querySelector('.menu-toggle');
                     
                     // Check if user has seen tutorial before
+                    // localStorage.removeItem('robotBuilderTutorialSeen'); // Uncomment to test tutorial
                     const hasSeenTutorial = localStorage.getItem('robotBuilderTutorialSeen');
                     
-                    if (!hasSeenTutorial) {
+                    if (!hasSeenTutorial && bubble && menuButton) {
+                        console.log('Showing tutorial bubble'); // Debug log
+                        
                         // Position the bubble next to the menu button
                         this.positionTutorialBubble();
                         
@@ -1529,7 +1554,7 @@
                         setTimeout(() => {
                             bubble.classList.add('show', 'pulse');
                             trackEvent('tutorial_shown', 'Mobile Interface', 'first_visit');
-                        }, 100);
+                        }, 300);
                         
                         // Auto-hide after 8 seconds
                         setTimeout(() => {
