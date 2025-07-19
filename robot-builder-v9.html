@@ -411,6 +411,77 @@
             opacity: 1;
         }
         
+        /* Tutorial Bubble */
+        .tutorial-bubble {
+            position: absolute;
+            background: #3498db;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+            z-index: 1001;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+            max-width: 200px;
+            text-align: center;
+            line-height: 1.3;
+        }
+        
+        .tutorial-bubble.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        .tutorial-bubble::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: -10px;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            border-right: 10px solid #3498db;
+        }
+        
+        .tutorial-bubble.pulse {
+            animation: tutorialPulse 2s infinite;
+        }
+        
+        @keyframes tutorialPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        /* Mobile Close Button */
+        .mobile-close-btn {
+            display: none;
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 1001;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            color: #2c3e50;
+        }
+        
+        .mobile-close-btn:hover {
+            background: white;
+            transform: scale(1.1);
+        }
+        
         /* Mobile styles */
         @media (max-width: 768px) {
             .menu-toggle {
@@ -440,6 +511,10 @@
             
             .controls.mobile-open {
                 left: 0;
+            }
+            
+            .controls.mobile-open .mobile-close-btn {
+                display: block;
             }
             
             .mobile-overlay {
@@ -533,14 +608,18 @@
     <div class="container">
         <div class="header">
             <button class="menu-toggle" onclick="toggleMobileMenu()">☰</button>
+            <div class="tutorial-bubble" id="tutorialBubble">
+                👆 Tap here to open robot controls!
+            </div>
             <h1>🤖 Robot Builder V9 <span class="version-badge">Mobile Ready</span></h1>
             <p>Create, customize, and share your robot configurations on any device!</p>
         </div>
         
-        <div class="mobile-overlay" id="mobileOverlay" onclick="closeMobileMenu()"></div>
+        <div class="mobile-overlay" id="mobileOverlay" onclick="closeMobileMenu('overlay')"></div>
         
         <div class="main-content">
             <div class="controls" id="controls">
+                <button class="mobile-close-btn" onclick="closeMobileMenu('close_button')">✕</button>
                 <div class="config-section">
                     <h3><span class="config-icon">🔗</span> Robot Configuration</h3>
                     <div class="config-display" id="configDisplay">Loading...</div>
@@ -961,7 +1040,7 @@
             const overlay = document.getElementById('mobileOverlay');
             
             if (controls.classList.contains('mobile-open')) {
-                closeMobileMenu();
+                closeMobileMenu('toggle_button');
             } else {
                 openMobileMenu();
             }
@@ -979,13 +1058,16 @@
             document.body.style.overflow = 'hidden';
         }
         
-        function closeMobileMenu() {
+        function closeMobileMenu(source = 'unknown') {
             const controls = document.getElementById('controls');
             const overlay = document.getElementById('mobileOverlay');
             
             controls.classList.remove('mobile-open');
             overlay.classList.remove('show');
             document.body.style.overflow = '';
+            
+            // Track how menu was closed
+            trackMobileInteraction('menu_close_' + source);
         }
         
         function toggleGroup(header) {
@@ -1066,6 +1148,9 @@
                 // Track page load and initial setup
                 trackEvent('page_load', 'App Lifecycle', navigator.userAgent.includes('Mobile') ? 'mobile' : 'desktop');
                 trackEvent('robot_created', 'Robot Lifecycle', 'initial_robot');
+                
+                // Initialize mobile tutorial if on mobile
+                this.initMobileTutorial();
             }
             
             generateUUID() {
@@ -1105,6 +1190,14 @@
                 window.addEventListener('resize', () => {
                     this.setupCanvasSize();
                     this.drawRobot();
+                    
+                    // Reposition tutorial bubble on resize
+                    if (window.innerWidth <= 768) {
+                        this.positionTutorialBubble();
+                    } else {
+                        // Hide tutorial on desktop
+                        this.hideTutorialBubble();
+                    }
                 });
             }
             
@@ -1169,7 +1262,7 @@
                 
                 // Close mobile menu if open
                 if (window.innerWidth <= 768) {
-                    closeMobileMenu();
+                    closeMobileMenu('config_loaded');
                 }
                 
                 return true;
@@ -1410,6 +1503,57 @@
                 const preview = document.getElementById('expressionPreview');
                 const expressions = { smile: '😊', frown: '😞', flat: '😐' };
                 preview.textContent = expressions[expression] || '😐';
+            }
+            
+            initMobileTutorial() {
+                // Only show tutorial on mobile devices
+                if (window.innerWidth <= 768) {
+                    const bubble = document.getElementById('tutorialBubble');
+                    const menuButton = document.querySelector('.menu-toggle');
+                    
+                    // Check if user has seen tutorial before
+                    const hasSeenTutorial = localStorage.getItem('robotBuilderTutorialSeen');
+                    
+                    if (!hasSeenTutorial) {
+                        // Position the bubble next to the menu button
+                        this.positionTutorialBubble();
+                        
+                        // Show the bubble after a short delay
+                        setTimeout(() => {
+                            bubble.classList.add('show', 'pulse');
+                            trackEvent('tutorial_shown', 'Mobile Interface', 'first_visit');
+                        }, 1000);
+                        
+                        // Auto-hide after 8 seconds
+                        setTimeout(() => {
+                            this.hideTutorialBubble();
+                        }, 8000);
+                        
+                        // Hide when menu button is clicked
+                        menuButton.addEventListener('click', () => {
+                            this.hideTutorialBubble();
+                            localStorage.setItem('robotBuilderTutorialSeen', 'true');
+                            trackEvent('tutorial_dismissed', 'Mobile Interface', 'menu_clicked');
+                        }, { once: true });
+                    }
+                }
+            }
+            
+            positionTutorialBubble() {
+                const bubble = document.getElementById('tutorialBubble');
+                const menuButton = document.querySelector('.menu-toggle');
+                
+                if (bubble && menuButton) {
+                    const buttonRect = menuButton.getBoundingClientRect();
+                    bubble.style.position = 'fixed';
+                    bubble.style.left = (buttonRect.right + 15) + 'px';
+                    bubble.style.top = (buttonRect.top + buttonRect.height / 2 - 20) + 'px';
+                }
+            }
+            
+            hideTutorialBubble() {
+                const bubble = document.getElementById('tutorialBubble');
+                bubble.classList.remove('show', 'pulse');
             }
             
             drawRobot() {
