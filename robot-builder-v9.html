@@ -246,6 +246,7 @@
         .control-content {
             overflow: hidden;
             transition: max-height 0.3s ease;
+            max-height: none; /* Default to visible */
         }
         
         .control-group.collapsed .control-content {
@@ -504,6 +505,14 @@
                 display: block;
             }
             
+            /* FORCE tutorial bubble to be visible on mobile */
+            .tutorial-bubble {
+                opacity: 1 !important;
+                transform: scale(1) !important;
+                visibility: visible !important;
+                display: block !important;
+            }
+            
             .header h1 {
                 font-size: 18px;
                 margin-left: 30px;
@@ -598,19 +607,7 @@
                 gap: 8px;
             }
             
-            /* Auto-collapse some groups on mobile */
-            .control-group:nth-child(n+7) {
-                max-height: 50px;
-                overflow: hidden;
-            }
-            
-            .control-group:nth-child(n+7).collapsed {
-                max-height: 50px;
-            }
-            
-            .control-group:nth-child(n+7):not(.collapsed) {
-                max-height: none;
-            }
+            /* Remove auto-collapse - let users control what they want to see */
         }
         
         @media (max-width: 480px) {
@@ -860,7 +857,7 @@
                     </div>
                 </div>
                 
-                <div class="control-group collapsed">
+                <div class="control-group">
                     <h3 onclick="toggleGroup(this)">
                         Combat Accessories
                         <span class="collapse-icon">▼</span>
@@ -891,7 +888,7 @@
                     </div>
                 </div>
                 
-                <div class="control-group collapsed">
+                <div class="control-group">
                     <h3 onclick="toggleGroup(this)">
                         Tech Accessories
                         <span class="collapse-icon">▼</span>
@@ -960,7 +957,7 @@
                     </div>
                 </div>
                 
-                <div class="control-group collapsed">
+                <div class="control-group">
                     <h3 onclick="toggleGroup(this)">
                         Utility & Wiring
                         <span class="collapse-icon">▼</span>
@@ -995,7 +992,7 @@
                     </div>
                 </div>
                 
-                <div class="control-group collapsed">
+                <div class="control-group">
                     <h3 onclick="toggleGroup(this)">
                         Classic Accessories
                         <span class="collapse-icon">▼</span>
@@ -1535,56 +1532,70 @@
             }
             
             initMobileTutorial() {
-                // Only show tutorial on mobile devices
+                console.log('initMobileTutorial called, window width:', window.innerWidth);
+                
+                // FORCE show tutorial on mobile devices - no localStorage check
                 if (window.innerWidth <= 768) {
+                    console.log('Mobile detected, looking for elements...');
+                    
                     const bubble = document.getElementById('tutorialBubble');
                     const menuButton = document.querySelector('.menu-toggle');
                     
-                    // Check if user has seen tutorial before
-                    // localStorage.removeItem('robotBuilderTutorialSeen'); // Uncomment to test tutorial
-                    const hasSeenTutorial = localStorage.getItem('robotBuilderTutorialSeen');
+                    console.log('Bubble element:', bubble);
+                    console.log('Menu button element:', menuButton);
                     
-                    if (!hasSeenTutorial && bubble && menuButton) {
-                        console.log('Showing tutorial bubble'); // Debug log
+                    if (bubble && menuButton) {
+                        console.log('FORCING tutorial bubble to show!');
                         
                         // Position the bubble next to the menu button
                         this.positionTutorialBubble();
                         
-                        // Show the bubble immediately
+                        // Show the bubble immediately - NO CONDITIONS
                         setTimeout(() => {
+                            console.log('Adding show and pulse classes to bubble');
                             bubble.classList.add('show', 'pulse');
-                            trackEvent('tutorial_shown', 'Mobile Interface', 'first_visit');
-                        }, 300);
+                            trackEvent('tutorial_shown', 'Mobile Interface', 'forced_show');
+                        }, 500);
                         
-                        // Auto-hide after 8 seconds
-                        setTimeout(() => {
-                            this.hideTutorialBubble();
-                        }, 8000);
+                        // NO AUTO-HIDE - stays until menu is clicked
                         
-                        // Hide when menu button is clicked
+                        // Hide ONLY when menu button is clicked
                         menuButton.addEventListener('click', () => {
+                            console.log('Menu button clicked - hiding tutorial');
                             this.hideTutorialBubble();
                             localStorage.setItem('robotBuilderTutorialSeen', 'true');
                             trackEvent('tutorial_dismissed', 'Mobile Interface', 'menu_clicked');
                         }, { once: true });
+                    } else {
+                        console.error('Tutorial elements not found!', { bubble, menuButton });
                     }
+                } else {
+                    console.log('Not mobile, skipping tutorial');
                 }
             }
             
             positionTutorialBubble() {
+                console.log('positionTutorialBubble called');
                 const bubble = document.getElementById('tutorialBubble');
                 const menuButton = document.querySelector('.menu-toggle');
                 
                 if (bubble && menuButton) {
+                    console.log('Positioning bubble next to menu button');
                     const buttonRect = menuButton.getBoundingClientRect();
                     const screenWidth = window.innerWidth;
                     
+                    console.log('Button rect:', buttonRect);
+                    console.log('Screen width:', screenWidth);
+                    
                     bubble.style.position = 'fixed';
+                    bubble.style.zIndex = '9999';
                     
                     // Ensure bubble doesn't go off screen on narrow devices
                     const bubbleLeft = Math.min(buttonRect.right + 15, screenWidth - 220);
                     bubble.style.left = bubbleLeft + 'px';
                     bubble.style.top = (buttonRect.top + buttonRect.height / 2 - 20) + 'px';
+                    
+                    console.log('Bubble positioned at:', bubbleLeft, (buttonRect.top + buttonRect.height / 2 - 20));
                     
                     // Adjust arrow position if bubble is repositioned
                     if (bubbleLeft < buttonRect.right + 15) {
@@ -1592,6 +1603,8 @@
                     } else {
                         bubble.style.removeProperty('--arrow-offset');
                     }
+                } else {
+                    console.error('Could not position bubble - missing elements');
                 }
             }
             
