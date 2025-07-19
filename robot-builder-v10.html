@@ -1,0 +1,2036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robot Builder V10 - Tony Enhanced</title>
+    
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-62JLYLHR22"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-62JLYLHR22');
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .container {
+            width: 100vw;
+            height: 100vh;
+            background: white;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: linear-gradient(45deg, #2c3e50, #34495e);
+            color: white;
+            padding: 12px 20px;
+            text-align: center;
+            flex-shrink: 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        
+        .menu-toggle {
+            display: none;
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px;
+        }
+        
+        .header h1 {
+            font-size: 20px;
+            margin: 0;
+        }
+        
+        .header p {
+            margin: 3px 0 0 0;
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        .controls {
+            width: 420px;
+            background: #f8f9fa;
+            border-right: 1px solid #dee2e6;
+            overflow-y: auto;
+            flex-shrink: 0;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .canvas-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #ffffff;
+            padding: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .canvas-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 100%;
+            max-height: 100%;
+        }
+        
+        canvas {
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        .config-section {
+            background: #e8f4fd;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 2px solid #3498db;
+            order: -1;
+        }
+        
+        .config-section h3 {
+            margin: 0 0 8px 0;
+            color: #2c3e50;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .config-display {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+            word-break: break-all;
+            line-height: 1.3;
+            margin-bottom: 8px;
+        }
+        
+        .config-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5px;
+            margin-bottom: 8px;
+        }
+        
+        .config-button {
+            padding: 8px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        
+        .copy-btn {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .copy-btn:hover {
+            background: #219a52;
+        }
+        
+        .share-btn {
+            background: #3498db;
+            color: white;
+        }
+        
+        .share-btn:hover {
+            background: #2980b9;
+        }
+        
+        .load-section {
+            border-top: 1px solid #bdc3c7;
+            padding-top: 8px;
+        }
+        
+        .load-input {
+            width: 100%;
+            padding: 6px;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+            margin-bottom: 5px;
+        }
+        
+        .load-btn {
+            width: 100%;
+            padding: 8px;
+            background: #e67e22;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        
+        .load-btn:hover {
+            background: #d35400;
+        }
+        
+        .control-group {
+            margin-bottom: 12px;
+            padding: 10px;
+            background: white;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .control-group h3 {
+            margin: 0 0 6px 0;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 3px;
+            font-size: 14px;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .collapse-icon {
+            font-size: 12px;
+            transition: transform 0.3s;
+        }
+        
+        .control-group.collapsed .collapse-icon {
+            transform: rotate(-90deg);
+        }
+        
+        .control-content {
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            max-height: none;
+        }
+        
+        .control-group.collapsed .control-content {
+            max-height: 0;
+        }
+        
+        .control-subgroup {
+            margin: 8px 0;
+            padding: 6px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            border-left: 3px solid #3498db;
+        }
+        
+        .control-subgroup h4 {
+            margin: 0 0 4px 0;
+            color: #34495e;
+            font-size: 12px;
+        }
+        
+        label {
+            display: block;
+            margin: 5px 0 2px 0;
+            font-weight: bold;
+            color: #555;
+            font-size: 10px;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 4px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            box-sizing: border-box;
+            font-size: 10px;
+        }
+        
+        input[type="color"] {
+            height: 28px;
+            cursor: pointer;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+        }
+        
+        input[type="checkbox"] {
+            width: auto;
+            margin-right: 5px;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin: 3px 0;
+        }
+        
+        .robot-name {
+            text-align: center;
+            margin: 8px 0;
+            font-size: 16px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .range-value {
+            font-size: 8px;
+            color: #666;
+            text-align: right;
+            margin-top: 1px;
+        }
+        
+        .arm-controls, .leg-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+        
+        .arm-side, .leg-side {
+            border: 1px solid #ddd;
+            padding: 5px;
+            border-radius: 3px;
+            background: #f9f9f9;
+        }
+        
+        .arm-side h4, .leg-side h4 {
+            margin: 0 0 3px 0;
+            font-size: 10px;
+            color: #2c3e50;
+        }
+        
+        .version-badge {
+            background: #8e44ad;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        
+        .expression-preview {
+            font-size: 16px;
+            text-align: center;
+            margin: 3px 0;
+        }
+        
+        .accessory-detail {
+            margin-left: 12px;
+            margin-top: 3px;
+            padding: 5px;
+            background: #ecf0f1;
+            border-radius: 3px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+        
+        .controls::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .controls::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+        
+        .controls::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 3px;
+        }
+        
+        .controls::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        
+        .config-icon {
+            font-size: 16px;
+        }
+        
+        .copy-feedback {
+            background: #27ae60;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 10px;
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        
+        .copy-feedback.show {
+            opacity: 1;
+        }
+        
+        /* Tutorial Bubble */
+        .tutorial-bubble {
+            position: absolute;
+            background: #3498db;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+            z-index: 1001;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+            max-width: 200px;
+            text-align: center;
+            line-height: 1.3;
+            visibility: hidden;
+        }
+        
+        .tutorial-bubble.show {
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: auto;
+            visibility: visible;
+        }
+        
+        .tutorial-bubble.hidden {
+            opacity: 0 !important;
+            transform: scale(.8) !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
+        }
+        
+        .tutorial-bubble::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: var(--arrow-offset, -10px);
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            border-right: 10px solid #3498db;
+        }
+        
+        .tutorial-bubble.pulse {
+            animation: tutorialPulse 2s infinite;
+        }
+        
+        @keyframes tutorialPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        /* Mobile Close Bar */
+        .mobile-close-bar {
+            display: none;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 1001;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .mobile-close-bar:hover {
+            background: linear-gradient(135deg, #2980b9, #1c5d8a);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .mobile-close-bar:active {
+            transform: translateY(0);
+        }
+        
+        .close-bar-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .close-icon {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        /* Mobile styles */
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+            }
+            
+            .header h1 {
+                font-size: 18px;
+                margin-left: 30px;
+            }
+            
+            .main-content {
+                position: relative;
+            }
+            
+            .controls {
+                position: fixed;
+                top: 0;
+                left: -100%;
+                width: 85%;
+                height: 100vh;
+                z-index: 1000;
+                transition: left 0.3s ease;
+                box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+                overflow-y: auto;
+            }
+            
+            .controls.mobile-open {
+                left: 0;
+            }
+            
+            .controls.mobile-open .mobile-close-bar {
+                display: block;
+            }
+            
+            .controls.mobile-open .config-section {
+                margin-top: 0;
+            }
+            
+            .controls.mobile-open .control-group:first-of-type {
+                margin-top: 15px;
+            }
+            
+            .mobile-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.5);
+                z-index: 999;
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.3s ease;
+            }
+            
+            .mobile-overlay.show {
+                opacity: 1;
+                visibility: visible;
+            }
+            
+            .canvas-container {
+                width: 100%;
+                padding: 10px;
+            }
+            
+            .robot-name {
+                font-size: 14px;
+            }
+            
+            input, select {
+                padding: 8px;
+                font-size: 14px;
+            }
+            
+            input[type="color"] {
+                height: 40px;
+            }
+            
+            .config-button, .load-btn {
+                padding: 12px;
+                font-size: 14px;
+            }
+            
+            .control-group h3 {
+                padding: 10px 0;
+                font-size: 16px;
+            }
+            
+            .two-column {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            
+            .arm-controls, .leg-controls {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .controls {
+                width: 95%;
+            }
+            
+            .header h1 {
+                font-size: 16px;
+            }
+            
+            .header p {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="menu-toggle" onclick="toggleMobileMenu()">☰</button>
+            <div class="tutorial-bubble" id="tutorialBubble">
+                👆 Tap here to open robot controls!
+            </div>
+            <h1>🤖 Robot Builder V10 <span class="version-badge">Tony Enhanced</span></h1>
+            <p>Create, customize, and share your robot configurations on any device!</p>
+        </div>
+        
+        <div class="mobile-overlay" id="mobileOverlay" onclick="closeMobileMenu('overlay')"></div>
+        
+        <div class="main-content">
+            <div class="controls" id="controls">
+                <div class="mobile-close-bar" onclick="closeMobileMenu('close_bar')">
+                    <div class="close-bar-content">
+                        <span class="close-icon">✕</span>
+                        <span>Close Controls</span>
+                    </div>
+                </div>
+                <div class="config-section">
+                    <h3><span class="config-icon">🔗</span> Robot Configuration</h3>
+                    <div class="config-display" id="configDisplay">Loading...</div>
+                    <div class="config-buttons">
+                        <button class="config-button copy-btn" id="copyBtn" onclick="copyConfig()" style="grid-column: 1 / -1;">
+                            Copy Config
+                            <div class="copy-feedback" id="copyFeedback">Copied!</div>
+                        </button>
+                    </div>
+                    <div class="load-section">
+                        <input type="text" class="load-input" id="loadInput" placeholder="Paste robot configuration here...">
+                        <button class="load-btn" onclick="loadConfig()">Load Robot</button>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <h3 onclick="toggleGroup(this)">
+                        Robot Identity
+                        <span class="collapse-icon">▼</span>
+                    </h3>
+                    <div class="control-content">
+                        <label for="robotName">Name:</label>
+                        <input type="text" id="robotName" value="Tony V10" placeholder="Enter robot name">
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h3 onclick="toggleGroup(this)">
+                        Head & Face
+                        <span class="collapse-icon">▼</span>
+                    </h3>
+                    <div class="control-content">
+                        <div class="two-column">
+                            <div>
+                                <label for="headShape">Shape:</label>
+                                <select id="headShape">
+                                    <option value="round">Round</option>
+                                    <option value="square">Square</option>
+                                    <option value="rectangular">Rectangular</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="headSize">Size:</label>
+                                <input type="range" id="headSize" min="30" max="120" value="80">
+                                <div class="range-value" id="headSizeValue">80</div>
+                            </div>
+                        </div>
+                        
+                        <label for="headColor">Color:</label>
+                        <input type="color" id="headColor" value="#3498db">
+                        
+                        <label for="mouthExpression">Expression:</label>
+                        <select id="mouthExpression">
+                            <option value="flat">Flat 😐</option>
+                            <option value="smile">Smile 😊</option>
+                            <option value="frown">Frown 😞</option>
+                        </select>
+                        <div class="expression-preview" id="expressionPreview">😐</div>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h3 onclick="toggleGroup(this)">
+                        Neck
+                        <span class="collapse-icon">▼</span>
+                    </h3>
+                    <div class="control-content">
+                        <div class="two-column">
+                            <div>
+                                <label for="neckLength">Length:</label>
+                                <input type="range" id="neckLength" min="5" max="60" value="20">
+                                <div class="range-value" id="neckLengthValue">20</div>
+                            </div>
+                            <div>
+                                <label for="neckColor">Color:</label>
+                                <input type="color" id="neckColor" value="#95a5a6">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h3 onclick="toggleGroup(this)">
+                        Body
+                        <span class="collapse-icon">▼</span>
+                    </h3>
+                    <div class="control-content">
+                        <div class="two-column">
+                            <div>
+                                <label for="bodyWidth">Width:</label>
+                                <input type="range" id="bodyWidth" min="60" max="200" value="140">
+                                <div class="range-value" id="bodyWidthValue">140</div>
+                            </div>
+                            <div>
+                                <label for="bodyHeight">Height:</label>
+                                <input type="range" id="bodyHeight" min="80" max="250" value="180">
+                                <div class="range-value" id="bodyHeightValue">180</div>
+                            </div>
+                        </div>
+                        
+                        <label for="bodyColor">Color:</label>
+                        <input type="color" id="bodyColor" value="#e74c3c">
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h3 onclick="toggleGroup(this)">
+                        Arms (360° Control)
+                        <span class="collapse-icon">▼</span>
+                    </h3>
+                    <div class="control-content">
+                        <div class="two-column">
+                            <div>
+                                <label for="armLength">Upper Length:</label>
+                                <input type="range" id="armLength" min="30" max="100" value="70">
+                                <div class="range-value" id="armLengthValue">70</div>
+                            </div>
+                            <div>
+                                <label for="forearmLength">Forearm Length:</label>
+                                <input type="range" id="forearmLength" min="25" max="90" value="60">
+                                <div class="range-value" id="forearmLengthValue">60</div>
+                            </div>
+                        </div>
+                        
+                        <div class="two-column">
+                            <div>
+                                <label for="armWidth">Width:</label>
+                                <input type="range" id="armWidth" min="8" max="30" value="15">
+                                <div class="range-value" id="armWidthValue">15</div>
+                            </div>
+                            <div>
+                                <label for="armColor">Color:</label>
+                                <input type="color" id="armColor" value="#f39c12">
+                            </div>
+                        </div>
+                        
+                        <div class="arm-controls">
+                            <div class="arm-side">
+                                <h4>Left Arm</h4>
+                                <label for="leftShoulderAngle">Shoulder:</label>
+                                <input type="range" id="leftShoulderAngle" min="0" max="360" value="180">
+                                <div class="range-value" id="leftShoulderValue">180°</div>
+                                
+                                <label for="leftElbowAngle">Elbow:</label>
+                                <input type="range" id="leftElbowAngle" min="0" max="360" value="0">
+                                <div class="range-value" id="leftElbowValue">0°</div>
+                            </div>
+                            
+                            <div class="arm-side">
+                                <h4>Right Arm</h4>
+                                <label for="rightShoulderAngle">Shoulder:</label>
+                                <input type="range" id="rightShoulderAngle" min="0" max="360" value="0">
+                                <div class="range-value" id="rightShoulderValue">0°</div>
+                                
+                                <label for="rightElbowAngle">Elbow:</label>
+                                <input type="range" id="rightElbowAngle" min="0" max="360" value="0">
+                                <div class="range-value" id="rightElbowValue">0°</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h3 onclick="toggleGroup(this)">
+                        Legs with Knee Joints
+                        <span class="collapse-icon">▼</span>
+                    </h3>
+                    <div class="control-content">
+                        <div class="two-column">
+                            <div>
+                                <label for="thighLength">Thigh Length:</label>
+                                <input type="range" id="thighLength" min="30" max="100" value="70">
+                                <div class="range-value" id="thighLengthValue">70</div>
+                            </div>
+                            <div>
+                                <label for="shinLength">Shin Length:</label>
+                                <input type="range" id="shinLength" min="30" max="90" value="60">
+                                <div class="range-value" id="shinLengthValue">60</div>
+                            </div>
+                        </div>
+                        
+                        <div class="two-column">
+                            <div>
+                                <label for="legWidth">Width:</label>
+                                <input type="range" id="legWidth" min="12" max="35" value="22">
+                                <div class="range-value" id="legWidthValue">22</div>
+                            </div>
+                            <div>
+                                <label for="legColor">Color:</label>
+                                <input type="color" id="legColor" value="#2ecc71">
+                            </div>
+                        </div>
+                        
+                        <div class="leg-controls">
+                            <div class="leg-side">
+                                <h4>Left Knee</h4>
+                                <label for="leftKneeAngle">Bend (0-150°):</label>
+                                <input type="range" id="leftKneeAngle" min="0" max="150" value="0">
+                                <div class="range-value" id="leftKneeValue">0°</div>
+                            </div>
+                            
+                            <div class="leg-side">
+                                <h4>Right Knee</h4>
+                                <label for="rightKneeAngle">Bend (0-150°):</label>
+                                <input type="range" id="rightKneeAngle" min="0" max="150" value="0">
+                                <div class="range-value" id="rightKneeValue">0°</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h3 onclick="toggleGroup(this)">
+                        Combat Accessories
+                        <span class="collapse-icon">▼</span>
+                    </h3>
+                    <div class="control-content">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="hasShoulderLasers">
+                            <label for="hasShoulderLasers">Shoulder-Mounted Lasers</label>
+                        </div>
+                        <div class="accessory-detail hidden" id="laserControls">
+                            <div class="two-column">
+                                <div>
+                                    <label for="laserSize">Size:</label>
+                                    <input type="range" id="laserSize" min="5" max="20" value="10">
+                                    <div class="range-value" id="laserSizeValue">10</div>
+                                </div>
+                                <div>
+                                    <label for="laserColor">Color:</label>
+                                    <input type="color" id="laserColor" value="#ff0000">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="hasGuns">
+                            <label for="hasGuns">Hand Weapons</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h3 onclick="toggleGroup(this)">
+                        Tech Accessories
+                        <span class="collapse-icon">▼</span>
+                    </h3>
+                    <div class="control-content">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="hasAccessPanel">
+                            <label for="hasAccessPanel">Chest Access Panel</label>
+                        </div>
+                        <div class="accessory-detail hidden" id="panelControls">
+                            <div class="two-column">
+                                <div>
+                                    <label for="panelPosition">Vertical Position:</label>
+                                    <input type="range" id="panelPosition" min="20" max="80" value="50">
+                                    <div class="range-value" id="panelPositionValue">50%</div>
+                                </div>
+                                <div>
+                                    <label for="panelColor">Color:</label>
+                                    <input type="color" id="panelColor" value="#34495e">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="hasAntenna">
+                            <label for="hasAntenna">Communication Antenna</label>
+                        </div>
+                        <div class="accessory-detail hidden" id="antennaControls">
+                            <div class="two-column">
+                                <div>
+                                    <label for="antennaHeight">Height:</label>
+                                    <input type="range" id="antennaHeight" min="10" max="40" value="20">
+                                    <div class="range-value" id="antennaHeightValue">20</div>
+                                </div>
+                                <div>
+                                    <label for="antennaStyle">Style:</label>
+                                    <select id="antennaStyle">
+                                        <option value="straight">Straight</option>
+                                        <option value="zigzag">Zigzag</option>
+                                        <option value="coil">Coil</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="hasChestDisplay">
+                            <label for="hasChestDisplay">Chest Display Screen</label>
+                        </div>
+                        <div class="accessory-detail hidden" id="displayControls">
+                            <div class="two-column">
+                                <div>
+                                    <label for="displayColor">Screen Color:</label>
+                                    <input type="color" id="displayColor" value="#00ff00">
+                                </div>
+                                <div>
+                                    <label for="displayPattern">Pattern:</label>
+                                    <select id="displayPattern">
+                                        <option value="grid">Grid</option>
+                                        <option value="waves">Waves</option>
+                                        <option value="bars">Bars</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h3 onclick="toggleGroup(this)">
+                        Utility & Wiring
+                        <span class="collapse-icon">▼</span>
+                    </h3>
+                    <div class="control-content">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="hasWires">
+                            <label for="hasWires">Connecting Wires</label>
+                        </div>
+                        <div class="accessory-detail hidden" id="wireControls">
+                            <div class="two-column">
+                                <div>
+                                    <label for="wireColor">Color:</label>
+                                    <input type="color" id="wireColor" value="#f39c12">
+                                </div>
+                                <div>
+                                    <label for="wireThickness">Thickness:</label>
+                                    <input type="range" id="wireThickness" min="1" max="5" value="2">
+                                    <div class="range-value" id="wireThicknessValue">2</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="hasUtilityBelt">
+                            <label for="hasUtilityBelt">Utility Belt</label>
+                        </div>
+                        <div class="accessory-detail hidden" id="beltControls">
+                            <label for="beltColor">Belt Color:</label>
+                            <input type="color" id="beltColor" value="#8b4513">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h3 onclick="toggleGroup(this)">
+                        Classic Accessories
+                        <span class="collapse-icon">▼</span>
+                    </h3>
+                    <div class="control-content">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="hasGlasses">
+                            <label for="hasGlasses">Glasses</label>
+                        </div>
+                        
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="hasShoes">
+                            <label for="hasShoes">Shoes</label>
+                        </div>
+                        <div class="accessory-detail hidden" id="shoeControls">
+                            <label for="shoeColor">Shoe Color:</label>
+                            <input type="color" id="shoeColor" value="#8b4513">
+                        </div>
+                        
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="hasLights">
+                            <label for="hasLights">Status Lights</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="canvas-container">
+                <div class="canvas-wrapper">
+                    <div class="robot-name" id="displayName">Tony V10</div>
+                    <canvas id="robotCanvas"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Analytics tracking functions
+        function trackEvent(action, category = 'Robot Builder', label = '', value = null) {
+            if (typeof gtag !== 'undefined') {
+                const eventData = {
+                    event_category: category,
+                    event_label: label
+                };
+                if (value !== null) {
+                    eventData.value = value;
+                }
+                gtag('event', action, eventData);
+            }
+        }
+        
+        function trackRobotCustomization(component, property, value) {
+            trackEvent('customize', 'Robot Customization', `${component}_${property}`, value);
+        }
+        
+        function trackAccessoryChange(accessory, enabled) {
+            trackEvent('accessory_toggle', 'Robot Accessories', accessory, enabled ? 1 : 0);
+        }
+        
+        function trackMobileInteraction(action) {
+            trackEvent(action, 'Mobile Interface');
+        }
+        
+        function trackConfiguration(action, details = '') {
+            trackEvent(action, 'Configuration Management', details);
+        }
+        
+        // Global mobile menu functions
+        function toggleMobileMenu() {
+            const controls = document.getElementById('controls');
+            if (controls.classList.contains('mobile-open')) {
+                closeMobileMenu('toggle_button');
+            } else {
+                openMobileMenu();
+            }
+            trackMobileInteraction(controls.classList.contains('mobile-open') ? 'menu_open' : 'menu_close');
+        }
+        
+        function openMobileMenu() {
+            const controls = document.getElementById('controls');
+            const overlay = document.getElementById('mobileOverlay');
+            controls.classList.add('mobile-open');
+            overlay.classList.add('show');
+            document.body.style.overflow = 'hidden';
+            if (window.robotBuilder) {
+                window.robotBuilder.hideTutorialBubble();
+                localStorage.setItem('robotBuilderTutorialSeen', 'true');
+                trackEvent('tutorial_dismissed', 'Mobile Interface', 'menu_opened');
+            }
+        }
+        
+        function closeMobileMenu(source = 'unknown') {
+            const controls = document.getElementById('controls');
+            const overlay = document.getElementById('mobileOverlay');
+            controls.classList.remove('mobile-open');
+            overlay.classList.remove('show');
+            document.body.style.overflow = '';
+            trackMobileInteraction('menu_close_' + source);
+        }
+        
+        function toggleGroup(header) {
+            const group = header.parentElement;
+            const groupName = header.textContent.trim();
+            const isCollapsing = !group.classList.contains('collapsed');
+            group.classList.toggle('collapsed');
+            trackEvent(isCollapsing ? 'group_collapse' : 'group_expand', 'Control Groups', groupName);
+        }
+
+        class RobotBuilderV10 {
+            constructor() {
+                this.canvas = document.getElementById('robotCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.baseWidth = 600;
+                this.baseHeight = 800;
+                this.aspectRatio = this.baseWidth / this.baseHeight;
+                
+                this.setupCanvasSize();
+                
+                this.robot = {
+                    name: 'Tony V10',
+                    head: { shape: 'round', size: 80, color: '#3498db' },
+                    neck: { length: 20, color: '#95a5a6' },
+                    mouth: { expression: 'flat' },
+                    body: { width: 140, height: 180, color: '#e74c3c' },
+                    arms: { 
+                        upperLength: 70, 
+                        forearmLength: 60, 
+                        width: 15, 
+                        color: '#f39c12',
+                        left: { shoulderAngle: 180, elbowAngle: 0 },
+                        right: { shoulderAngle: 0, elbowAngle: 0 }
+                    },
+                    legs: { 
+                        thighLength: 70, 
+                        shinLength: 60, 
+                        width: 22, 
+                        color: '#2ecc71',
+                        left: { kneeAngle: 0 },
+                        right: { kneeAngle: 0 }
+                    },
+                    accessories: {
+                        glasses: false,
+                        shoes: false,
+                        guns: false,
+                        lights: false,
+                        shoulderLasers: false,
+                        accessPanel: false,
+                        antenna: false,
+                        chestDisplay: false,
+                        wires: false,
+                        utilityBelt: false,
+                        shoeColor: '#8b4513',
+                        laserSize: 10,
+                        laserColor: '#ff0000',
+                        panelPosition: 50,
+                        panelColor: '#34495e',
+                        antennaHeight: 20,
+                        antennaStyle: 'straight',
+                        displayColor: '#00ff00',
+                        displayPattern: 'grid',
+                        wireColor: '#f39c12',
+                        wireThickness: 2,
+                        beltColor: '#8b4513'
+                    }
+                };
+                
+                this.robotId = this.generateUUID();
+                this.setupEventListeners();
+                this.drawRobot();
+                this.setupWindowResize();
+                this.updateConfigDisplay();
+                
+                trackEvent('page_load', 'App Lifecycle', navigator.userAgent.includes('Mobile') ? 'mobile' : 'desktop');
+                trackEvent('robot_created', 'Robot Lifecycle', 'initial_robot');
+                
+                this.initMobileTutorial();
+            }
+            
+            generateUUID() {
+                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                    const r = Math.random() * 16 | 0;
+                    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                    return v.toString(16);
+                });
+            }
+            
+            setupCanvasSize() {
+                const container = this.canvas.parentElement.parentElement;
+                const availableWidth = container.clientWidth - 30;
+                const availableHeight = container.clientHeight - 60;
+                
+                let canvasWidth, canvasHeight;
+                
+                if (availableWidth / this.aspectRatio <= availableHeight) {
+                    canvasWidth = availableWidth;
+                    canvasHeight = availableWidth / this.aspectRatio;
+                } else {
+                    canvasHeight = availableHeight;
+                    canvasWidth = availableHeight * this.aspectRatio;
+                }
+                
+                this.canvas.width = canvasWidth;
+                this.canvas.height = canvasHeight;
+                this.canvas.style.width = canvasWidth + 'px';
+                this.canvas.style.height = canvasHeight + 'px';
+                
+                this.scale = canvasWidth / this.baseWidth;
+                this.centerX = canvasWidth / 2;
+                this.centerY = canvasHeight / 2;
+            }
+            
+            setupWindowResize() {
+                window.addEventListener('resize', () => {
+                    this.setupCanvasSize();
+                    this.drawRobot();
+                    if (window.innerWidth <= 768) {
+                        this.positionTutorialBubble();
+                    } else {
+                        this.hideTutorialBubble();
+                    }
+                });
+            }
+            
+            encodeConfiguration() {
+                const config = {
+                    id: this.robotId,
+                    name: this.robot.name,
+                    head: this.robot.head,
+                    neck: this.robot.neck,
+                    mouth: this.robot.mouth,
+                    body: this.robot.body,
+                    arms: this.robot.arms,
+                    legs: this.robot.legs,
+                    accessories: this.robot.accessories
+                };
+                const jsonString = JSON.stringify(config);
+                return btoa(jsonString).replace(/[+/=]/g, m => ({'+':'-','/':'_','=':''}[m]));
+            }
+            
+            decodeConfiguration(encodedConfig) {
+                try {
+                    const base64 = encodedConfig.replace(/[-_]/g, m => ({'-':'+' ,'_':'/'}[m]));
+                    const padding = 4 - (base64.length % 4);
+                    const paddedBase64 = base64 + '='.repeat(padding % 4);
+                    const jsonString = atob(paddedBase64);
+                    return JSON.parse(jsonString);
+                } catch (error) {
+                    console.error('Failed to decode configuration:', error);
+                    return null;
+                }
+            }
+            
+            updateConfigDisplay() {
+                const encoded = this.encodeConfiguration();
+                const display = document.getElementById('configDisplay');
+                display.textContent = `${this.robotId.substr(0, 8)}-${encoded.substr(0, 32)}...`;
+                display.title = encoded;
+                this.currentConfig = encoded;
+            }
+            
+            loadConfigurationFromString(configString) {
+                const config = this.decodeConfiguration(configString);
+                if (!config) {
+                    alert('Invalid configuration string!');
+                    trackConfiguration('config_load_failed', 'invalid_format');
+                    return false;
+                }
+                this.robotId = config.id || this.generateUUID();
+                this.robot = { ...config };
+                this.updateUIFromRobot();
+                this.drawRobot();
+                this.updateConfigDisplay();
+                if (window.innerWidth <= 768) {
+                    closeMobileMenu('config_loaded');
+                }
+                return true;
+            }
+            
+            updateUIFromRobot() {
+                document.getElementById('robotName').value = this.robot.name;
+                document.getElementById('displayName').textContent = this.robot.name;
+                
+                document.getElementById('headShape').value = this.robot.head.shape;
+                document.getElementById('headSize').value = this.robot.head.size;
+                document.getElementById('headSizeValue').textContent = this.robot.head.size;
+                document.getElementById('headColor').value = this.robot.head.color;
+                
+                document.getElementById('mouthExpression').value = this.robot.mouth.expression;
+                this.updateExpressionPreview(this.robot.mouth.expression);
+                
+                document.getElementById('neckLength').value = this.robot.neck.length;
+                document.getElementById('neckLengthValue').textContent = this.robot.neck.length;
+                document.getElementById('neckColor').value = this.robot.neck.color;
+                
+                document.getElementById('bodyWidth').value = this.robot.body.width;
+                document.getElementById('bodyWidthValue').textContent = this.robot.body.width;
+                document.getElementById('bodyHeight').value = this.robot.body.height;
+                document.getElementById('bodyHeightValue').textContent = this.robot.body.height;
+                document.getElementById('bodyColor').value = this.robot.body.color;
+                
+                document.getElementById('armLength').value = this.robot.arms.upperLength;
+                document.getElementById('armLengthValue').textContent = this.robot.arms.upperLength;
+                document.getElementById('forearmLength').value = this.robot.arms.forearmLength;
+                document.getElementById('forearmLengthValue').textContent = this.robot.arms.forearmLength;
+                document.getElementById('armWidth').value = this.robot.arms.width;
+                document.getElementById('armWidthValue').textContent = this.robot.arms.width;
+                document.getElementById('armColor').value = this.robot.arms.color;
+                
+                document.getElementById('leftShoulderAngle').value = this.robot.arms.left.shoulderAngle;
+                document.getElementById('leftShoulderValue').textContent = this.robot.arms.left.shoulderAngle + '°';
+                document.getElementById('leftElbowAngle').value = this.robot.arms.left.elbowAngle;
+                document.getElementById('leftElbowValue').textContent = this.robot.arms.left.elbowAngle + '°';
+                document.getElementById('rightShoulderAngle').value = this.robot.arms.right.shoulderAngle;
+                document.getElementById('rightShoulderValue').textContent = this.robot.arms.right.shoulderAngle + '°';
+                document.getElementById('rightElbowAngle').value = this.robot.arms.right.elbowAngle;
+                document.getElementById('rightElbowValue').textContent = this.robot.arms.right.elbowAngle + '°';
+                
+                document.getElementById('thighLength').value = this.robot.legs.thighLength;
+                document.getElementById('thighLengthValue').textContent = this.robot.legs.thighLength;
+                document.getElementById('shinLength').value = this.robot.legs.shinLength;
+                document.getElementById('shinLengthValue').textContent = this.robot.legs.shinLength;
+                document.getElementById('legWidth').value = this.robot.legs.width;
+                document.getElementById('legWidthValue').textContent = this.robot.legs.width;
+                document.getElementById('legColor').value = this.robot.legs.color;
+                
+                document.getElementById('leftKneeAngle').value = this.robot.legs.left.kneeAngle;
+                document.getElementById('leftKneeValue').textContent = this.robot.legs.left.kneeAngle + '°';
+                document.getElementById('rightKneeAngle').value = this.robot.legs.right.kneeAngle;
+                document.getElementById('rightKneeValue').textContent = this.robot.legs.right.kneeAngle + '°';
+                
+                const accessories = this.robot.accessories;
+                document.getElementById('hasShoulderLasers').checked = accessories.shoulderLasers;
+                document.getElementById('laserControls').classList.toggle('hidden', !accessories.shoulderLasers);
+                document.getElementById('laserSize').value = accessories.laserSize;
+                document.getElementById('laserSizeValue').textContent = accessories.laserSize;
+                document.getElementById('laserColor').value = accessories.laserColor;
+                
+                document.getElementById('hasGuns').checked = accessories.guns;
+                
+                document.getElementById('hasAccessPanel').checked = accessories.accessPanel;
+                document.getElementById('panelControls').classList.toggle('hidden', !accessories.accessPanel);
+                document.getElementById('panelPosition').value = accessories.panelPosition;
+                document.getElementById('panelPositionValue').textContent = accessories.panelPosition + '%';
+                document.getElementById('panelColor').value = accessories.panelColor;
+                
+                document.getElementById('hasAntenna').checked = accessories.antenna;
+                document.getElementById('antennaControls').classList.toggle('hidden', !accessories.antenna);
+                document.getElementById('antennaHeight').value = accessories.antennaHeight;
+                document.getElementById('antennaHeightValue').textContent = accessories.antennaHeight;
+                document.getElementById('antennaStyle').value = accessories.antennaStyle;
+                
+                document.getElementById('hasChestDisplay').checked = accessories.chestDisplay;
+                document.getElementById('displayControls').classList.toggle('hidden', !accessories.chestDisplay);
+                document.getElementById('displayColor').value = accessories.displayColor;
+                document.getElementById('displayPattern').value = accessories.displayPattern;
+                
+                document.getElementById('hasWires').checked = accessories.wires;
+                document.getElementById('wireControls').classList.toggle('hidden', !accessories.wires);
+                document.getElementById('wireColor').value = accessories.wireColor;
+                document.getElementById('wireThickness').value = accessories.wireThickness;
+                document.getElementById('wireThicknessValue').textContent = accessories.wireThickness;
+                
+                document.getElementById('hasUtilityBelt').checked = accessories.utilityBelt;
+                document.getElementById('beltControls').classList.toggle('hidden', !accessories.utilityBelt);
+                document.getElementById('beltColor').value = accessories.beltColor;
+                
+                document.getElementById('hasGlasses').checked = accessories.glasses;
+                
+                document.getElementById('hasShoes').checked = accessories.shoes;
+                document.getElementById('shoeControls').classList.toggle('hidden', !accessories.shoes);
+                document.getElementById('shoeColor').value = accessories.shoeColor;
+                
+                document.getElementById('hasLights').checked = accessories.lights;
+            }
+            
+            setupEventListeners() {
+                document.getElementById('robotName').addEventListener('input', (e) => {
+                    this.robot.name = e.target.value;
+                    document.getElementById('displayName').textContent = e.target.value || 'Tony V10';
+                    this.updateConfigDisplay();
+                    if (e.target.value.trim() !== '') {
+                        trackEvent('robot_named', 'Robot Customization', e.target.value.length > 0 ? 'custom_name' : 'default_name');
+                    }
+                });
+                
+                this.setupSliderControl('headSize', 'head.size', 'headSizeValue');
+                this.setupColorControl('headColor', 'head.color');
+                this.setupSelectControl('headShape', 'head.shape');
+                this.setupSelectControl('mouthExpression', 'mouth.expression', (value) => {
+                    this.updateExpressionPreview(value);
+                });
+                
+                this.setupSliderControl('neckLength', 'neck.length', 'neckLengthValue');
+                this.setupColorControl('neckColor', 'neck.color');
+                
+                this.setupSliderControl('bodyWidth', 'body.width', 'bodyWidthValue');
+                this.setupSliderControl('bodyHeight', 'body.height', 'bodyHeightValue');
+                this.setupColorControl('bodyColor', 'body.color');
+                
+                this.setupSliderControl('armLength', 'arms.upperLength', 'armLengthValue');
+                this.setupSliderControl('forearmLength', 'arms.forearmLength', 'forearmLengthValue');
+                this.setupSliderControl('armWidth', 'arms.width', 'armWidthValue');
+                this.setupColorControl('armColor', 'arms.color');
+                
+                this.setupSliderControl('leftShoulderAngle', 'arms.left.shoulderAngle', 'leftShoulderValue', '°');
+                this.setupSliderControl('leftElbowAngle', 'arms.left.elbowAngle', 'leftElbowValue', '°');
+                this.setupSliderControl('rightShoulderAngle', 'arms.right.shoulderAngle', 'rightShoulderValue', '°');
+                this.setupSliderControl('rightElbowAngle', 'arms.right.elbowAngle', 'rightElbowValue', '°');
+                
+                this.setupSliderControl('thighLength', 'legs.thighLength', 'thighLengthValue');
+                this.setupSliderControl('shinLength', 'legs.shinLength', 'shinLengthValue');
+                this.setupSliderControl('legWidth', 'legs.width', 'legWidthValue');
+                this.setupColorControl('legColor', 'legs.color');
+                
+                this.setupSliderControl('leftKneeAngle', 'legs.left.kneeAngle', 'leftKneeValue', '°');
+                this.setupSliderControl('rightKneeAngle', 'legs.right.kneeAngle', 'rightKneeValue', '°');
+                
+                this.setupAccessoryControl('hasShoulderLasers', 'shoulderLasers', 'laserControls');
+                this.setupAccessoryControl('hasGuns', 'guns');
+                this.setupAccessoryControl('hasAccessPanel', 'accessPanel', 'panelControls');
+                this.setupAccessoryControl('hasAntenna', 'antenna', 'antennaControls');
+                this.setupAccessoryControl('hasChestDisplay', 'chestDisplay', 'displayControls');
+                this.setupAccessoryControl('hasWires', 'wires', 'wireControls');
+                this.setupAccessoryControl('hasUtilityBelt', 'utilityBelt', 'beltControls');
+                this.setupAccessoryControl('hasGlasses', 'glasses');
+                this.setupAccessoryControl('hasShoes', 'shoes', 'shoeControls');
+                this.setupAccessoryControl('hasLights', 'lights');
+                
+                this.setupSliderControl('laserSize', 'accessories.laserSize', 'laserSizeValue');
+                this.setupColorControl('laserColor', 'accessories.laserColor');
+                this.setupSliderControl('panelPosition', 'accessories.panelPosition', 'panelPositionValue', '%');
+                this.setupColorControl('panelColor', 'accessories.panelColor');
+                this.setupSliderControl('antennaHeight', 'accessories.antennaHeight', 'antennaHeightValue');
+                this.setupSelectControl('antennaStyle', 'accessories.antennaStyle');
+                this.setupColorControl('displayColor', 'accessories.displayColor');
+                this.setupSelectControl('displayPattern', 'accessories.displayPattern');
+                this.setupColorControl('wireColor', 'accessories.wireColor');
+                this.setupSliderControl('wireThickness', 'accessories.wireThickness', 'wireThicknessValue');
+                this.setupColorControl('beltColor', 'accessories.beltColor');
+                this.setupColorControl('shoeColor', 'accessories.shoeColor');
+            }
+            
+            setupSliderControl(id, path, valueId, suffix = '') {
+                document.getElementById(id).addEventListener('input', (e) => {
+                    const value = parseInt(e.target.value);
+                    this.setNestedValue(path, value);
+                    if (valueId) {
+                        document.getElementById(valueId).textContent = e.target.value + suffix;
+                    }
+                    this.drawRobot();
+                    this.updateConfigDisplay();
+                    const [component, property] = path.split('.');
+                    trackRobotCustomization(component, property || id, value);
+                });
+            }
+            
+            setupColorControl(id, path) {
+                document.getElementById(id).addEventListener('input', (e) => {
+                    this.setNestedValue(path, e.target.value);
+                    this.drawRobot();
+                    this.updateConfigDisplay();
+                    const [component, property] = path.split('.');
+                    trackRobotCustomization(component, property || id, e.target.value);
+                });
+            }
+            
+            setupSelectControl(id, path, callback = null) {
+                document.getElementById(id).addEventListener('change', (e) => {
+                    this.setNestedValue(path, e.target.value);
+                    if (callback) callback(e.target.value);
+                    this.drawRobot();
+                    this.updateConfigDisplay();
+                    const [component, property] = path.split('.');
+                    trackRobotCustomization(component, property || id, e.target.value);
+                });
+            }
+            
+            setupAccessoryControl(checkboxId, accessoryPath, controlsId = null) {
+                document.getElementById(checkboxId).addEventListener('change', (e) => {
+                    this.setNestedValue(`accessories.${accessoryPath}`, e.target.checked);
+                    if (controlsId) {
+                        document.getElementById(controlsId).classList.toggle('hidden', !e.target.checked);
+                    }
+                    this.drawRobot();
+                    this.updateConfigDisplay();
+                    trackAccessoryChange(accessoryPath, e.target.checked);
+                });
+            }
+            
+            setNestedValue(path, value) {
+                const keys = path.split('.');
+                let obj = this.robot;
+                for (let i = 0; i < keys.length - 1; i++) {
+                    obj = obj[keys[i]];
+                }
+                obj[keys[keys.length - 1]] = value;
+            }
+            
+            updateExpressionPreview(expression) {
+                const preview = document.getElementById('expressionPreview');
+                const expressions = { smile: '😊', frown: '😞', flat: '😐' };
+                preview.textContent = expressions[expression] || '😐';
+            }
+            
+            initMobileTutorial() {
+                if (window.innerWidth <= 768 && !localStorage.getItem('robotTutorialDismissed')) {
+                    const bubble = document.getElementById('tutorialBubble');
+                    const menuButton = document.querySelector('.menu-toggle');
+                    if (bubble && menuButton) {
+                        this.positionTutorialBubble();
+                        setTimeout(() => {
+                            bubble.classList.add('show','pulse');
+                            trackEvent('tutorial_shown', 'Mobile Interface', 'initial_show');
+                        }, 300);
+                    }
+                }
+            }
+            
+            positionTutorialBubble() {
+                const bubble = document.getElementById('tutorialBubble');
+                const menuButton = document.querySelector('.menu-toggle');
+                if (bubble && menuButton) {
+                    const buttonRect = menuButton.getBoundingClientRect();
+                    const screenWidth = window.innerWidth;
+                    bubble.style.position = 'fixed';
+                    bubble.style.zIndex = '9999';
+                    const bubbleLeft = Math.min(buttonRect.right + 15, screenWidth - 220);
+                    bubble.style.left = bubbleLeft + 'px';
+                    bubble.style.top = (buttonRect.top + buttonRect.height / 2 - 20) + 'px';
+                    if (bubbleLeft < buttonRect.right + 15) {
+                        bubble.style.setProperty('--arrow-offset', (buttonRect.right + 5 - bubbleLeft) + 'px');
+                    } else {
+                        bubble.style.removeProperty('--arrow-offset');
+                    }
+                }
+            }
+            
+            hideTutorialBubble() {
+                const bubble = document.getElementById('tutorialBubble');
+                if (bubble) {
+                    bubble.classList.remove('show','pulse');
+                    bubble.classList.add('hidden');
+                    localStorage.setItem('robotTutorialDismissed','1');
+                }
+            }
+            
+            drawRobot() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                this.ctx.save();
+                this.ctx.scale(this.scale, this.scale);
+                
+                const neckTopY = this.centerY/this.scale - this.robot.body.height/2 - this.robot.neck.length;
+                const headY = neckTopY - this.robot.head.size/2;
+                const bodyY = this.centerY/this.scale;
+                
+                if (this.robot.accessories.wires) this.drawWires(headY, bodyY);
+                this.drawBendableLegs(bodyY);
+                this.drawBody(bodyY);
+                if (this.robot.accessories.utilityBelt) this.drawUtilityBelt(bodyY);
+                if (this.robot.accessories.accessPanel) this.drawAccessPanel(bodyY);
+                if (this.robot.accessories.chestDisplay) this.drawChestDisplay(bodyY);
+                this.drawBendableArms(bodyY);
+                this.drawNeck(bodyY);
+                this.drawHead(headY);
+                if (this.robot.accessories.shoulderLasers) this.drawShoulderLasers(bodyY);
+                if (this.robot.accessories.antenna) this.drawAntenna(headY);
+                this.drawOtherAccessories(headY, bodyY);
+                
+                this.ctx.restore();
+            }
+            
+            drawBendableLegs(bodyY) {
+                this.ctx.fillStyle = this.robot.legs.color;
+                this.ctx.strokeStyle = '#2c3e50';
+                this.ctx.lineWidth = 2;
+                const hipY = bodyY + this.robot.body.height/2;
+                const legSpacing = this.robot.body.width * 0.3;
+                this.drawLeg(this.centerX/this.scale - legSpacing, hipY, this.robot.legs.left.kneeAngle, 'left');
+                this.drawLeg(this.centerX/this.scale + legSpacing, hipY, this.robot.legs.right.kneeAngle, 'right');
+            }
+            
+            drawLeg(hipX, hipY, kneeAngle, side) {
+                const thighLength = this.robot.legs.thighLength;
+                const shinLength = this.robot.legs.shinLength;
+                const width = this.robot.legs.width;
+                const kneeX = hipX;
+                const kneeY = hipY + thighLength;
+                const kneeRad = (kneeAngle * Math.PI) / 180;
+                const footX = kneeX + shinLength * Math.sin(kneeRad);
+                const footY = kneeY + shinLength * Math.cos(kneeRad);
+                this.drawLegSegment(hipX, hipY, kneeX, kneeY, width);
+                this.drawLegSegment(kneeX, kneeY, footX, footY, width);
+                this.ctx.beginPath(); this.ctx.arc(hipX, hipY, width/2 + 2, 0, Math.PI * 2); this.ctx.fill(); this.ctx.stroke();
+                this.ctx.beginPath(); this.ctx.arc(kneeX, kneeY, width/2 + 1, 0, Math.PI * 2); this.ctx.fill(); this.ctx.stroke();
+                this.ctx.beginPath(); this.ctx.arc(footX, footY, width/2, 0, Math.PI * 2); this.ctx.fill(); this.ctx.stroke();
+                if (side === 'left') { this.leftFootX = footX; this.leftFootY = footY; }
+                else { this.rightFootX = footX; this.rightFootY = footY; }
+            }
+            
+            drawLegSegment(x1, y1, x2, y2, width) {
+                const angle = Math.atan2(y2 - y1, x2 - x1);
+                const length = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+                this.ctx.save();
+                this.ctx.translate(x1, y1);
+                this.ctx.rotate(angle);
+                this.ctx.fillRect(0, -width/2, length, width);
+                this.ctx.strokeRect(0, -width/2, length, width);
+                this.ctx.restore();
+            }
+            
+            drawShoulderLasers(bodyY) {
+                const shoulderY = bodyY - this.robot.body.height/4;
+                const shoulderOffset = this.robot.body.width/2 + 5;
+                const size = this.robot.accessories.laserSize;
+                this.ctx.fillStyle = this.robot.accessories.laserColor;
+                this.ctx.strokeStyle = '#2c3e50';
+                this.ctx.lineWidth = 2;
+                this.ctx.fillRect(this.centerX/this.scale - shoulderOffset - size, shoulderY - size/2, size * 2, size);
+                this.ctx.strokeRect(this.centerX/this.scale - shoulderOffset - size, shoulderY - size/2, size * 2, size);
+                this.ctx.fillRect(this.centerX/this.scale + shoulderOffset - size, shoulderY - size/2, size * 2, size);
+                this.ctx.strokeRect(this.centerX/this.scale + shoulderOffset - size, shoulderY - size/2, size * 2, size);
+                this.ctx.fillStyle = '#34495e';
+                const barrelLength = size/2;
+                this.ctx.fillRect(this.centerX/this.scale - shoulderOffset - size - barrelLength, shoulderY - 2, barrelLength, 4);
+                this.ctx.fillRect(this.centerX/this.scale + shoulderOffset + size, shoulderY - 2, barrelLength, 4);
+            }
+            
+            drawAccessPanel(bodyY) {
+                const panelWidth = this.robot.body.width * 0.6;
+                const panelHeight = this.robot.body.height * 0.3;
+                const positionPercent = this.robot.accessories.panelPosition / 100;
+                const panelY = bodyY - this.robot.body.height/2 + (this.robot.body.height - panelHeight) * positionPercent;
+                this.ctx.fillStyle = this.robot.accessories.panelColor;
+                this.ctx.strokeStyle = '#2c3e50';
+                this.ctx.lineWidth = 1;
+                this.ctx.fillRect(this.centerX/this.scale - panelWidth/2, panelY, panelWidth, panelHeight);
+                this.ctx.strokeRect(this.centerX/this.scale - panelWidth/2, panelY, panelWidth, panelHeight);
+                this.ctx.strokeStyle = '#7f8c8d';
+                for (let i = 1; i < 4; i++) {
+                    const lineX = this.centerX/this.scale - panelWidth/2 + (panelWidth/4) * i;
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(lineX, panelY + 5);
+                    this.ctx.lineTo(lineX, panelY + panelHeight - 5);
+                    this.ctx.stroke();
+                }
+            }
+            
+            drawAntenna(headY) {
+                const startX = this.centerX/this.scale;
+                const startY = headY - this.robot.head.size/2 - 5;
+                const height = this.robot.accessories.antennaHeight;
+                this.ctx.strokeStyle = '#34495e';
+                this.ctx.lineWidth = 3;
+                this.ctx.lineCap = 'round';
+                this.ctx.beginPath();
+                switch (this.robot.accessories.antennaStyle) {
+                    case 'straight':
+                        this.ctx.moveTo(startX, startY);
+                        this.ctx.lineTo(startX, startY - height);
+                        break;
+                    case 'zigzag':
+                        this.ctx.moveTo(startX, startY);
+                        for (let i = 0; i < height; i += 5) {
+                            const x = startX + (i % 10 === 0 ? -3 : 3);
+                            this.ctx.lineTo(x, startY - i);
+                        }
+                        break;
+                    case 'coil':
+                        const coils = 8;
+                        const coilHeight = height / coils;
+                        this.ctx.moveTo(startX, startY);
+                        for (let i = 0; i <= coils; i++) {
+                            const angle = i * Math.PI;
+                            const x = startX + 4 * Math.sin(angle);
+                            const y = startY - i * coilHeight;
+                            this.ctx.lineTo(x, y);
+                        }
+                        break;
+                }
+                this.ctx.stroke();
+                this.ctx.fillStyle = '#e74c3c';
+                this.ctx.beginPath();
+                this.ctx.arc(startX, startY - height, 2, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
+            
+            drawChestDisplay(bodyY) {
+                const displayWidth = this.robot.body.width * 0.4;
+                const displayHeight = this.robot.body.height * 0.25;
+                const displayY = bodyY - displayHeight/2;
+                this.ctx.fillStyle = '#2c3e50';
+                this.ctx.fillRect(this.centerX/this.scale - displayWidth/2, displayY, displayWidth, displayHeight);
+                this.ctx.fillStyle = this.robot.accessories.displayColor;
+                this.ctx.fillRect(this.centerX/this.scale - displayWidth/2 + 2, displayY + 2, displayWidth - 4, displayHeight - 4);
+                this.ctx.strokeStyle = '#34495e';
+                this.ctx.lineWidth = 1;
+                switch (this.robot.accessories.displayPattern) {
+                    case 'grid':
+                        for (let i = 1; i < 4; i++) {
+                            const x = this.centerX/this.scale - displayWidth/2 + (displayWidth/4) * i;
+                            this.ctx.beginPath();
+                            this.ctx.moveTo(x, displayY + 2);
+                            this.ctx.lineTo(x, displayY + displayHeight - 2);
+                            this.ctx.stroke();
+                        }
+                        for (let i = 1; i < 3; i++) {
+                            const y = displayY + (displayHeight/3) * i;
+                            this.ctx.beginPath();
+                            this.ctx.moveTo(this.centerX/this.scale - displayWidth/2 + 2, y);
+                            this.ctx.lineTo(this.centerX/this.scale + displayWidth/2 - 2, y);
+                            this.ctx.stroke();
+                        }
+                        break;
+                    case 'waves':
+                        this.ctx.beginPath();
+                        for (let x = 0; x < displayWidth - 4; x += 2) {
+                            const y = displayY + displayHeight/2 + 5 * Math.sin(x * 0.3);
+                            if (x === 0) this.ctx.moveTo(this.centerX/this.scale - displayWidth/2 + 2 + x, y);
+                            else this.ctx.lineTo(this.centerX/this.scale - displayWidth/2 + 2 + x, y);
+                        }
+                        this.ctx.stroke();
+                        break;
+                    case 'bars':
+                        for (let i = 0; i < 5; i++) {
+                            const barHeight = (Math.random() * 0.7 + 0.3) * (displayHeight - 8);
+                            this.ctx.fillStyle = '#34495e';
+                            this.ctx.fillRect(
+                                this.centerX/this.scale - displayWidth/2 + 4 + i * (displayWidth - 8)/5,
+                                displayY + displayHeight - 4 - barHeight,
+                                (displayWidth - 16)/5,
+                                barHeight
+                            );
+                        }
+                        break;
+                }
+            }
+            
+            drawWires(headY, bodyY) {
+                this.ctx.strokeStyle = this.robot.accessories.wireColor;
+                this.ctx.lineWidth = this.robot.accessories.wireThickness;
+                this.ctx.lineCap = 'round';
+                this.ctx.beginPath();
+                this.ctx.moveTo(this.centerX/this.scale - 10, headY + this.robot.head.size/3);
+                this.ctx.quadraticCurveTo(this.centerX/this.scale - 20, bodyY - this.robot.body.height/3, this.centerX/this.scale - 5, bodyY - this.robot.body.height/4);
+                this.ctx.stroke();
+                const shoulderY = bodyY - this.robot.body.height/4;
+                const bodyEdge = this.robot.body.width/2;
+                this.ctx.beginPath();
+                this.ctx.moveTo(this.centerX/this.scale - bodyEdge/2, shoulderY);
+                this.ctx.quadraticCurveTo(this.centerX/this.scale - bodyEdge, shoulderY - 10, this.centerX/this.scale - bodyEdge, shoulderY);
+                this.ctx.stroke();
+                this.ctx.beginPath();
+                this.ctx.moveTo(this.centerX/this.scale + bodyEdge/2, shoulderY);
+                this.ctx.quadraticCurveTo(this.centerX/this.scale + bodyEdge, shoulderY - 10, this.centerX/this.scale + bodyEdge, shoulderY);
+                this.ctx.stroke();
+            }
+            
+            drawUtilityBelt(bodyY) {
+                const beltY = bodyY + this.robot.body.height * 0.3;
+                const beltWidth = this.robot.body.width + 10;
+                this.ctx.fillStyle = this.robot.accessories.beltColor;
+                this.ctx.fillRect(this.centerX/this.scale - beltWidth/2, beltY - 4, beltWidth, 8);
+                this.ctx.fillStyle = '#654321';
+                for (let i = 0; i < 3; i++) {
+                    const pouchX = this.centerX/this.scale - 20 + i * 20;
+                    this.ctx.fillRect(pouchX - 6, beltY - 2, 12, 12);
+                    this.ctx.strokeRect(pouchX - 6, beltY - 2, 12, 12);
+                }
+            }
+            
+            drawNeck(bodyY) {
+                this.ctx.fillStyle = this.robot.neck.color;
+                this.ctx.strokeStyle = '#2c3e50';
+                this.ctx.lineWidth = 2;
+                const neckWidth = this.robot.head.size * 0.4;
+                const neckStartY = bodyY - this.robot.body.height/2;
+                const neckEndY = neckStartY - this.robot.neck.length;
+                this.ctx.fillRect(this.centerX/this.scale - neckWidth/2, neckEndY, neckWidth, this.robot.neck.length);
+                this.ctx.strokeRect(this.centerX/this.scale - neckWidth/2, neckEndY, neckWidth, this.robot.neck.length);
+            }
+            
+            drawHead(y) {
+                this.ctx.fillStyle = this.robot.head.color;
+                this.ctx.strokeStyle = '#2c3e50';
+                this.ctx.lineWidth = 2;
+                const size = this.robot.head.size;
+                switch(this.robot.head.shape) {
+                    case 'round':
+                        this.ctx.beginPath();
+                        this.ctx.arc(this.centerX/this.scale, y, size/2, 0, Math.PI * 2);
+                        this.ctx.fill();
+                        this.ctx.stroke();
+                        break;
+                    case 'square':
+                        this.ctx.fillRect(this.centerX/this.scale - size/2, y - size/2, size, size);
+                        this.ctx.strokeRect(this.centerX/this.scale - size/2, y - size/2, size, size);
+                        break;
+                    case 'rectangular':
+                        this.ctx.fillRect(this.centerX/this.scale - size/2, y - size/3, size, size * 0.7);
+                        this.ctx.strokeRect(this.centerX/this.scale - size/2, y - size/3, size, size * 0.7);
+                        break;
+                }
+                this.drawEyes(y);
+                this.drawMouth(y);
+            }
+            
+            drawEyes(headY) {
+                this.ctx.fillStyle = '#2c3e50';
+                const eyeSize = 4;
+                const eyeOffset = this.robot.head.size * 0.2;
+                this.ctx.beginPath();
+                this.ctx.arc(this.centerX/this.scale - eyeOffset, headY - 5, eyeSize, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.beginPath();
+                this.ctx.arc(this.centerX/this.scale + eyeOffset, headY - 5, eyeSize, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
+            
+            drawMouth(headY) {
+                this.ctx.strokeStyle = '#2c3e50';
+                this.ctx.lineWidth = 3;
+                this.ctx.lineCap = 'round';
+                const mouthWidth = this.robot.head.size * 0.3;
+                const mouthY = headY + this.robot.head.size * 0.15;
+                this.ctx.beginPath();
+                switch(this.robot.mouth.expression) {
+                    case 'smile':
+                        this.ctx.arc(this.centerX/this.scale, mouthY - 8, mouthWidth/2, 0.2 * Math.PI, 0.8 * Math.PI);
+                        break;
+                    case 'frown':
+                        this.ctx.arc(this.centerX/this.scale, mouthY + 8, mouthWidth/2, 1.2 * Math.PI, 1.8 * Math.PI);
+                        break;
+                    case 'flat':
+                    default:
+                        this.ctx.moveTo(this.centerX/this.scale - mouthWidth/2, mouthY);
+                        this.ctx.lineTo(this.centerX/this.scale + mouthWidth/2, mouthY);
+                        break;
+                }
+                this.ctx.stroke();
+            }
+            
+            drawBody(y) {
+                this.ctx.fillStyle = this.robot.body.color;
+                this.ctx.strokeStyle = '#2c3e50';
+                this.ctx.lineWidth = 2;
+                this.ctx.fillRect(
+                    this.centerX/this.scale - this.robot.body.width/2,
+                    y - this.robot.body.height/2,
+                    this.robot.body.width,
+                    this.robot.body.height
+                );
+                this.ctx.strokeRect(
+                    this.centerX/this.scale - this.robot.body.width/2,
+                    y - this.robot.body.height/2,
+                    this.robot.body.width,
+                    this.robot.body.height
+                );
+            }
+            
+            drawBendableArms(bodyY) {
+                this.ctx.fillStyle = this.robot.arms.color;
+                this.ctx.strokeStyle = '#2c3e50';
+                this.ctx.lineWidth = 2;
+                const shoulderY = bodyY - this.robot.body.height/4;
+                const bodyEdge = this.robot.body.width/2;
+                this.drawArm(this.centerX/this.scale - bodyEdge, shoulderY, this.robot.arms.left.shoulderAngle, this.robot.arms.left.elbowAngle, 'left');
+                this.drawArm(this.centerX/this.scale + bodyEdge, shoulderY, this.robot.arms.right.shoulderAngle, this.robot.arms.right.elbowAngle, 'right');
+            }
+            
+            drawArm(shoulderX, shoulderY, shoulderAngle, elbowAngle, side) {
+                const upperLength = this.robot.arms.upperLength;
+                const forearmLength = this.robot.arms.forearmLength;
+                const width = this.robot.arms.width;
+                const shoulderRad = (shoulderAngle * Math.PI) / 180;
+                const elbowX = shoulderX + upperLength * Math.cos(shoulderRad);
+                const elbowY = shoulderY + upperLength * Math.sin(shoulderRad);
+                const forearmRad = shoulderRad + (elbowAngle * Math.PI) / 180;
+                const handX = elbowX + forearmLength * Math.cos(forearmRad);
+                const handY = elbowY + forearmLength * Math.sin(forearmRad);
+                this.drawArmSegment(shoulderX, shoulderY, elbowX, elbowY, width);
+                this.drawArmSegment(elbowX, elbowY, handX, handY, width);
+                this.ctx.beginPath(); this.ctx.arc(shoulderX, shoulderY, width/2 + 2, 0, Math.PI * 2); this.ctx.fill(); this.ctx.stroke();
+                this.ctx.beginPath(); this.ctx.arc(elbowX, elbowY, width/2 + 1, 0, Math.PI * 2); this.ctx.fill(); this.ctx.stroke();
+                this.ctx.beginPath(); this.ctx.arc(handX, handY, width/2, 0, Math.PI * 2); this.ctx.fill(); this.ctx.stroke();
+                if (side === 'left') { this.leftHandX = handX; this.leftHandY = handY; }
+                else { this.rightHandX = handX; this.rightHandY = handY; }
+            }
+            
+            drawArmSegment(x1, y1, x2, y2, width) {
+                const angle = Math.atan2(y2 - y1, x2 - x1);
+                const length = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+                this.ctx.save();
+                this.ctx.translate(x1, y1);
+                this.ctx.rotate(angle);
+                this.ctx.fillRect(0, -width/2, length, width);
+                this.ctx.strokeRect(0, -width/2, length, width);
+                this.ctx.restore();
+            }
+            
+            drawOtherAccessories(headY, bodyY) {
+                if (this.robot.accessories.glasses) this.drawGlasses(headY);
+                if (this.robot.accessories.shoes) this.drawShoes();
+                if (this.robot.accessories.guns) this.drawGuns();
+                if (this.robot.accessories.lights) this.drawLights(headY, bodyY);
+            }
+            
+            drawGlasses(headY) {
+                this.ctx.strokeStyle = '#2c3e50';
+                this.ctx.lineWidth = 3;
+                const glassSize = this.robot.head.size * 0.3;
+                const glassOffset = this.robot.head.size * 0.25;
+                this.ctx.beginPath();
+                this.ctx.arc(this.centerX/this.scale - glassOffset, headY, glassSize, 0, Math.PI * 2);
+                this.ctx.stroke();
+                this.ctx.beginPath();
+                this.ctx.arc(this.centerX/this.scale + glassOffset, headY, glassSize, 0, Math.PI * 2);
+                this.ctx.stroke();
+                this.ctx.beginPath();
+                this.ctx.moveTo(this.centerX/this.scale - glassOffset + glassSize, headY);
+                this.ctx.lineTo(this.centerX/this.scale + glassOffset - glassSize, headY);
+                this.ctx.stroke();
+            }
+            
+            drawShoes() {
+                if (!this.leftFootX || !this.rightFootX) return;
+                this.ctx.fillStyle = this.robot.accessories.shoeColor;
+                this.ctx.strokeStyle = '#2c3e50';
+                this.ctx.lineWidth = 2;
+                const shoeWidth = this.robot.legs.width + 10;
+                const shoeHeight = 15;
+                this.ctx.fillRect(this.leftFootX - shoeWidth/2, this.leftFootY, shoeWidth, shoeHeight);
+                this.ctx.strokeRect(this.leftFootX - shoeWidth/2, this.leftFootY, shoeWidth, shoeHeight);
+                this.ctx.fillRect(this.rightFootX - shoeWidth/2, this.rightFootY, shoeWidth, shoeHeight);
+                this.ctx.strokeRect(this.rightFootX - shoeWidth/2, this.rightFootY, shoeWidth, shoeHeight);
+            }
+            
+            drawGuns() {
+                if (!this.leftHandX || !this.rightHandX) return;
+                this.ctx.fillStyle = '#34495e';
+                this.ctx.strokeStyle = '#2c3e50';
+                this.ctx.lineWidth = 2;
+                const gunLength = 25;
+                const gunWidth = 8;
+                this.ctx.fillRect(this.leftHandX - gunLength/2, this.leftHandY - gunWidth/2, gunLength, gunWidth);
+                this.ctx.strokeRect(this.leftHandX - gunLength/2, this.leftHandY - gunWidth/2, gunLength, gunWidth);
+                this.ctx.fillRect(this.rightHandX - gunLength/2, this.rightHandY - gunWidth/2, gunLength, gunWidth);
+                this.ctx.strokeRect(this.rightHandX - gunLength/2, this.rightHandY - gunWidth/2, gunLength, gunWidth);
+            }
+            
+            drawLights(headY, bodyY) {
+                this.ctx.fillStyle = '#ffff00';
+                this.ctx.strokeStyle = '#ffa500';
+                this.ctx.lineWidth = 2;
+                const lightSize = 6;
+                this.ctx.beginPath();
+                this.ctx.arc(this.centerX/this.scale - this.robot.head.size/3, headY - this.robot.head.size/3, lightSize, 0, Math.PI * 2);
+                this.ctx.fill(); this.ctx.stroke();
+                this.ctx.beginPath();
+                this.ctx.arc(this.centerX/this.scale + this.robot.head.size/3, headY - this.robot.head.size/3, lightSize, 0, Math.PI * 2);
+                this.ctx.fill(); this.ctx.stroke();
+                this.ctx.beginPath();
+                this.ctx.arc(this.centerX/this.scale, bodyY - this.robot.body.height/3, lightSize, 0, Math.PI * 2);
+                this.ctx.fill(); this.ctx.stroke();
+                this.ctx.beginPath();
+                this.ctx.arc(this.centerX/this.scale, bodyY + this.robot.body.height/3, lightSize, 0, Math.PI * 2);
+                this.ctx.fill(); this.ctx.stroke();
+            }
+        }
+        
+        // Global config functions
+        function copyConfig() {
+            const config = window.robotBuilder.currentConfig;
+            navigator.clipboard.writeText(config).then(() => {
+                const feedback = document.getElementById('copyFeedback');
+                feedback.classList.add('show');
+                setTimeout(() => feedback.classList.remove('show'), 1000);
+                trackConfiguration('config_copied', 'success');
+            }).catch(err => {
+                alert('Failed to copy configuration to clipboard');
+                trackConfiguration('config_copy_failed', 'error');
+            });
+        }
+        
+        function shareConfig() {
+            const config = window.robotBuilder.currentConfig;
+            const robotName = window.robotBuilder.robot.name;
+            if (navigator.share) {
+                navigator.share({
+                    title: `${robotName} - Robot Configuration`,
+                    text: `Check out my custom robot: ${robotName}`,
+                    url: `data:text/plain,${config}`
+                }).then(() => {
+                    trackConfiguration('config_shared', 'native_share');
+                }).catch(err => {
+                    trackConfiguration('config_share_failed', 'native_share_error');
+                });
+            } else {
+                const shareText = `Check out my custom robot: ${robotName}\n\nConfiguration: ${config}`;
+                navigator.clipboard.writeText(shareText).then(() => {
+                    alert('Robot configuration copied to clipboard for sharing!');
+                    trackConfiguration('config_shared', 'clipboard_fallback');
+                }).catch(err => {
+                    prompt('Copy this text to share your robot:', shareText);
+                    trackConfiguration('config_share_failed', 'clipboard_fallback_error');
+                });
+            }
+        }
+        
+        function loadConfig() {
+            const input = document.getElementById('loadInput');
+            const configString = input.value.trim();
+            if (!configString) {
+                alert('Please paste a robot configuration string');
+                trackConfiguration('config_load_failed', 'empty_input');
+                return;
+            }
+            const success = window.robotBuilder.loadConfigurationFromString(configString);
+            if (success !== false) {
+                trackConfiguration('config_loaded', 'success');
+                trackEvent('robot_created', 'Robot Lifecycle', 'loaded_from_config');
+            }
+            input.value = '';
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            const startTime = performance.now();
+            window.robotBuilder = new RobotBuilderV10();
+            document.getElementById('tutorialBubble')
+              ?.addEventListener('click', () => window.robotBuilder.hideTutorialBubble());
+            const endTime = performance.now();
+            const loadTime = Math.round(endTime - startTime);
+            trackEvent('app_initialized', 'Performance', 'initialization_time', loadTime);
+            const screenSize = window.innerWidth <= 768 ? 'mobile' : 
+                              window.innerWidth <= 1024 ? 'tablet' : 'desktop';
+            trackEvent('screen_size', 'Device Info', screenSize, window.innerWidth);
+            const canvas = document.createElement('canvas');
+            const hasCanvas = !!(canvas.getContext && canvas.getContext('2d'));
+            trackEvent('canvas_support', 'Browser Capabilities', hasCanvas ? 'supported' : 'not_supported');
+        });
+    </script>
+</body>
+</html>
+

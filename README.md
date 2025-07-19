@@ -1,4 +1,4 @@
-# 🤖 Robot Builder V9
+# 🤖 Robot Builder V10 - Tony Enhanced
 
 An interactive web application for building and customizing robots with real-time visual preview. Build your dream robot with extensive customization options and share configurations with others!
 
@@ -78,7 +78,7 @@ robotbuilder.jackrea.co.uk (Route53)
 2. **Open in browser:**
    ```bash
    # Open any version locally
-   open robot-builder-v9.html
+   open robot-builder-v10.html
    ```
 
 ### Version History
@@ -91,6 +91,7 @@ robotbuilder.jackrea.co.uk (Route53)
 - **V7**: Full-screen browser experience
 - **V8**: Adaptive canvas and configuration sharing
 - **V9**: Mobile responsiveness with collapsible menus
+- **V10**: Tony Enhanced - Significantly larger robot dimensions for better frame utilization
 
 ## 📦 Deployment
 

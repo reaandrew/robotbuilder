@@ -149,7 +149,7 @@ resource "aws_cloudfront_distribution" "website" {
 
   enabled             = true
   is_ipv6_enabled     = true
-  comment             = "Robot Builder V9 Website"
+  comment             = "Robot Builder V10 - Tony Enhanced"
   default_root_object = "index.html"
 
   aliases = [var.subdomain]
@@ -241,9 +241,9 @@ resource "aws_route53_record" "website" {
 resource "aws_s3_object" "index" {
   bucket       = aws_s3_bucket.website.bucket
   key          = "index.html"
-  source       = "../robot-builder-v9.html"
+  source       = "../robot-builder-v10.html"
   content_type = "text/html"
-  etag         = filemd5("../robot-builder-v9.html")
+  etag         = filemd5("../robot-builder-v10.html")
 
   depends_on = [aws_s3_bucket_policy.cloudfront_oac]
 }
