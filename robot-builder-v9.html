@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Robot Builder V9 - Mobile Ready</title>
+    
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-62JLYLHR22"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-62JLYLHR22');
+    </script>
     <style>
         * {
             margin: 0;
@@ -916,6 +926,36 @@
     </div>
 
     <script>
+        // Analytics tracking functions
+        function trackEvent(action, category = 'Robot Builder', label = '', value = null) {
+            if (typeof gtag !== 'undefined') {
+                const eventData = {
+                    event_category: category,
+                    event_label: label
+                };
+                if (value !== null) {
+                    eventData.value = value;
+                }
+                gtag('event', action, eventData);
+            }
+        }
+        
+        function trackRobotCustomization(component, property, value) {
+            trackEvent('customize', 'Robot Customization', `${component}_${property}`, value);
+        }
+        
+        function trackAccessoryChange(accessory, enabled) {
+            trackEvent('accessory_toggle', 'Robot Accessories', accessory, enabled ? 1 : 0);
+        }
+        
+        function trackMobileInteraction(action) {
+            trackEvent(action, 'Mobile Interface');
+        }
+        
+        function trackConfiguration(action, details = '') {
+            trackEvent(action, 'Configuration Management', details);
+        }
+        
         // Global mobile menu functions
         function toggleMobileMenu() {
             const controls = document.getElementById('controls');
@@ -926,6 +966,9 @@
             } else {
                 openMobileMenu();
             }
+            
+            // Track mobile menu usage
+            trackMobileInteraction(controls.classList.contains('mobile-open') ? 'menu_close' : 'menu_open');
         }
         
         function openMobileMenu() {
@@ -948,7 +991,13 @@
         
         function toggleGroup(header) {
             const group = header.parentElement;
+            const groupName = header.textContent.trim();
+            const isCollapsing = !group.classList.contains('collapsed');
+            
             group.classList.toggle('collapsed');
+            
+            // Track control group interactions
+            trackEvent(isCollapsing ? 'group_collapse' : 'group_expand', 'Control Groups', groupName);
         }
 
         class RobotBuilderV9 {
@@ -1014,6 +1063,10 @@
                 this.drawRobot();
                 this.setupWindowResize();
                 this.updateConfigDisplay();
+                
+                // Track page load and initial setup
+                trackEvent('page_load', 'App Lifecycle', navigator.userAgent.includes('Mobile') ? 'mobile' : 'desktop');
+                trackEvent('robot_created', 'Robot Lifecycle', 'initial_robot');
             }
             
             generateUUID() {
@@ -1104,7 +1157,8 @@
                 const config = this.decodeConfiguration(configString);
                 if (!config) {
                     alert('Invalid configuration string!');
-                    return;
+                    trackConfiguration('config_load_failed', 'invalid_format');
+                    return false;
                 }
                 
                 this.robotId = config.id || this.generateUUID();
@@ -1118,6 +1172,8 @@
                 if (window.innerWidth <= 768) {
                     closeMobileMenu();
                 }
+                
+                return true;
             }
             
             updateUIFromRobot() {
@@ -1223,6 +1279,11 @@
                     this.robot.name = e.target.value;
                     document.getElementById('displayName').textContent = e.target.value || 'UltraBot V9';
                     this.updateConfigDisplay();
+                    
+                    // Track robot naming
+                    if (e.target.value.trim() !== '') {
+                        trackEvent('robot_named', 'Robot Customization', e.target.value.length > 0 ? 'custom_name' : 'default_name');
+                    }
                 });
                 
                 this.setupSliderControl('headSize', 'head.size', 'headSizeValue');
@@ -1284,12 +1345,17 @@
             
             setupSliderControl(id, path, valueId, suffix = '') {
                 document.getElementById(id).addEventListener('input', (e) => {
-                    this.setNestedValue(path, parseInt(e.target.value));
+                    const value = parseInt(e.target.value);
+                    this.setNestedValue(path, value);
                     if (valueId) {
                         document.getElementById(valueId).textContent = e.target.value + suffix;
                     }
                     this.drawRobot();
                     this.updateConfigDisplay();
+                    
+                    // Track customization
+                    const [component, property] = path.split('.');
+                    trackRobotCustomization(component, property || id, value);
                 });
             }
             
@@ -1298,6 +1364,10 @@
                     this.setNestedValue(path, e.target.value);
                     this.drawRobot();
                     this.updateConfigDisplay();
+                    
+                    // Track color changes
+                    const [component, property] = path.split('.');
+                    trackRobotCustomization(component, property || id, e.target.value);
                 });
             }
             
@@ -1307,6 +1377,10 @@
                     if (callback) callback(e.target.value);
                     this.drawRobot();
                     this.updateConfigDisplay();
+                    
+                    // Track selection changes
+                    const [component, property] = path.split('.');
+                    trackRobotCustomization(component, property || id, e.target.value);
                 });
             }
             
@@ -1318,6 +1392,9 @@
                     }
                     this.drawRobot();
                     this.updateConfigDisplay();
+                    
+                    // Track accessory toggles
+                    trackAccessoryChange(accessoryPath, e.target.checked);
                 });
             }
             
@@ -1882,8 +1959,12 @@
                 const feedback = document.getElementById('copyFeedback');
                 feedback.classList.add('show');
                 setTimeout(() => feedback.classList.remove('show'), 1000);
+                
+                // Track successful copy
+                trackConfiguration('config_copied', 'success');
             }).catch(err => {
                 alert('Failed to copy configuration to clipboard');
+                trackConfiguration('config_copy_failed', 'error');
             });
         }
         
@@ -1896,13 +1977,19 @@
                     title: `${robotName} - Robot Configuration`,
                     text: `Check out my custom robot: ${robotName}`,
                     url: `data:text/plain,${config}`
+                }).then(() => {
+                    trackConfiguration('config_shared', 'native_share');
+                }).catch(err => {
+                    trackConfiguration('config_share_failed', 'native_share_error');
                 });
             } else {
                 const shareText = `Check out my custom robot: ${robotName}\n\nConfiguration: ${config}`;
                 navigator.clipboard.writeText(shareText).then(() => {
                     alert('Robot configuration copied to clipboard for sharing!');
+                    trackConfiguration('config_shared', 'clipboard_fallback');
                 }).catch(err => {
                     prompt('Copy this text to share your robot:', shareText);
+                    trackConfiguration('config_share_failed', 'clipboard_fallback_error');
                 });
             }
         }
@@ -1913,15 +2000,39 @@
             
             if (!configString) {
                 alert('Please paste a robot configuration string');
+                trackConfiguration('config_load_failed', 'empty_input');
                 return;
             }
             
-            window.robotBuilder.loadConfigurationFromString(configString);
+            const success = window.robotBuilder.loadConfigurationFromString(configString);
+            if (success !== false) {
+                trackConfiguration('config_loaded', 'success');
+                trackEvent('robot_created', 'Robot Lifecycle', 'loaded_from_config');
+            }
             input.value = '';
         }
         
         document.addEventListener('DOMContentLoaded', () => {
+            // Track DOM load timing
+            const startTime = performance.now();
+            
             window.robotBuilder = new RobotBuilderV9();
+            
+            const endTime = performance.now();
+            const loadTime = Math.round(endTime - startTime);
+            
+            // Track app initialization performance
+            trackEvent('app_initialized', 'Performance', 'initialization_time', loadTime);
+            
+            // Track screen size for responsive analytics
+            const screenSize = window.innerWidth <= 768 ? 'mobile' : 
+                              window.innerWidth <= 1024 ? 'tablet' : 'desktop';
+            trackEvent('screen_size', 'Device Info', screenSize, window.innerWidth);
+            
+            // Track canvas support
+            const canvas = document.createElement('canvas');
+            const hasCanvas = !!(canvas.getContext && canvas.getContext('2d'));
+            trackEvent('canvas_support', 'Browser Capabilities', hasCanvas ? 'supported' : 'not_supported');
         });
     </script>
 </body>
