@@ -1,0 +1,16 @@
+# Copy this file to terraform.tfvars and customize the values as needed
+
+# AWS Region (default: eu-west-2)
+aws_region = "eu-west-2"
+
+# Root domain name - should match your existing Route53 hosted zone
+domain_name = "jackrea.co.uk"
+
+# Full subdomain for the robot builder
+subdomain = "robotbuilder.jackrea.co.uk"
+
+# Environment name
+environment = "production"
+
+# Project name
+project_name = "robot-builder"

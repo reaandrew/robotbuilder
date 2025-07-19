@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robot Builder V7 - Full Screen Experience</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .container {
+            width: 100vw;
+            height: 100vh;
+            background: white;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: linear-gradient(45deg, #2c3e50, #34495e);
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+            flex-shrink: 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin: 0;
+        }
+        
+        .header p {
+            margin: 5px 0 0 0;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        .controls {
+            width: 420px;
+            background: #f8f9fa;
+            border-right: 1px solid #dee2e6;
+            overflow-y: auto;
+            flex-shrink: 0;
+            padding: 15px;
+        }
+        
+        .canvas-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #ffffff;
+            padding: 20px;
+            overflow: hidden;
+        }
+        
+        .canvas-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 100%;
+            max-height: 100%;
+        }
+        
+        canvas {
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            max-width: 100%;
+            max-height: calc(100vh - 180px);
+        }
+        
+        .control-group {
+            margin-bottom: 15px;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .control-group h3 {
+            margin: 0 0 8px 0;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 4px;
+            font-size: 16px;
+        }
+        
+        .control-subgroup {
+            margin: 10px 0;
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            border-left: 3px solid #3498db;
+        }
+        
+        .control-subgroup h4 {
+            margin: 0 0 6px 0;
+            color: #34495e;
+            font-size: 13px;
+        }
+        
+        label {
+            display: block;
+            margin: 6px 0 2px 0;
+            font-weight: bold;
+            color: #555;
+            font-size: 11px;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 11px;
+        }
+        
+        input[type="color"] {
+            height: 32px;
+            cursor: pointer;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+        }
+        
+        input[type="checkbox"] {
+            width: auto;
+            margin-right: 6px;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin: 4px 0;
+        }
+        
+        .robot-name {
+            text-align: center;
+            margin: 10px 0;
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .range-value {
+            font-size: 9px;
+            color: #666;
+            text-align: right;
+            margin-top: 1px;
+        }
+        
+        .arm-controls, .leg-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        
+        .arm-side, .leg-side {
+            border: 1px solid #ddd;
+            padding: 6px;
+            border-radius: 4px;
+            background: #f9f9f9;
+        }
+        
+        .arm-side h4, .leg-side h4 {
+            margin: 0 0 4px 0;
+            font-size: 11px;
+            color: #2c3e50;
+        }
+        
+        .version-badge {
+            background: #9b59b6;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        
+        .expression-preview {
+            font-size: 18px;
+            text-align: center;
+            margin: 4px 0;
+        }
+        
+        .accessory-detail {
+            margin-left: 15px;
+            margin-top: 4px;
+            padding: 6px;
+            background: #ecf0f1;
+            border-radius: 4px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        
+        /* Custom scrollbar for controls panel */
+        .controls::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .controls::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        
+        .controls::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        
+        .controls::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 1200px) {
+            .controls {
+                width: 350px;
+            }
+        }
+        
+        @media (max-width: 1000px) {
+            .controls {
+                width: 320px;
+            }
+            
+            .control-group {
+                padding: 10px;
+                margin-bottom: 12px;
+            }
+        }
+        
+        @media (max-height: 600px) {
+            .header {
+                padding: 10px 20px;
+            }
+            
+            .header h1 {
+                font-size: 20px;
+            }
+            
+            .header p {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 Robot Builder V7 <span class="version-badge">Full Screen</span></h1>
+            <p>Ultimate robot customization in full browser window experience!</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="controls">
+                <div class="control-group">
+                    <h3>Robot Identity</h3>
+                    <label for="robotName">Name:</label>
+                    <input type="text" id="robotName" value="UltraBot V7" placeholder="Enter robot name">
+                </div>
+                
+                <div class="control-group">
+                    <h3>Head & Face</h3>
+                    <div class="two-column">
+                        <div>
+                            <label for="headShape">Shape:</label>
+                            <select id="headShape">
+                                <option value="round">Round</option>
+                                <option value="square">Square</option>
+                                <option value="rectangular">Rectangular</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="headSize">Size:</label>
+                            <input type="range" id="headSize" min="30" max="80" value="50">
+                            <div class="range-value" id="headSizeValue">50</div>
+                        </div>
+                    </div>
+                    
+                    <label for="headColor">Color:</label>
+                    <input type="color" id="headColor" value="#3498db">
+                    
+                    <label for="mouthExpression">Expression:</label>
+                    <select id="mouthExpression">
+                        <option value="flat">Flat 😐</option>
+                        <option value="smile">Smile 😊</option>
+                        <option value="frown">Frown 😞</option>
+                    </select>
+                    <div class="expression-preview" id="expressionPreview">😐</div>
+                </div>
+                
+                <div class="control-group">
+                    <h3>Neck</h3>
+                    <div class="two-column">
+                        <div>
+                            <label for="neckLength">Length:</label>
+                            <input type="range" id="neckLength" min="5" max="50" value="15">
+                            <div class="range-value" id="neckLengthValue">15</div>
+                        </div>
+                        <div>
+                            <label for="neckColor">Color:</label>
+                            <input type="color" id="neckColor" value="#95a5a6">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h3>Body</h3>
+                    <div class="two-column">
+                        <div>
+                            <label for="bodyWidth">Width:</label>
+                            <input type="range" id="bodyWidth" min="60" max="120" value="80">
+                            <div class="range-value" id="bodyWidthValue">80</div>
+                        </div>
+                        <div>
+                            <label for="bodyHeight">Height:</label>
+                            <input type="range" id="bodyHeight" min="80" max="150" value="100">
+                            <div class="range-value" id="bodyHeightValue">100</div>
+                        </div>
+                    </div>
+                    
+                    <label for="bodyColor">Color:</label>
+                    <input type="color" id="bodyColor" value="#e74c3c">
+                </div>
+                
+                <div class="control-group">
+                    <h3>Arms (360° Control)</h3>
+                    <div class="two-column">
+                        <div>
+                            <label for="armLength">Upper Length:</label>
+                            <input type="range" id="armLength" min="30" max="70" value="45">
+                            <div class="range-value" id="armLengthValue">45</div>
+                        </div>
+                        <div>
+                            <label for="forearmLength">Forearm Length:</label>
+                            <input type="range" id="forearmLength" min="25" max="60" value="40">
+                            <div class="range-value" id="forearmLengthValue">40</div>
+                        </div>
+                    </div>
+                    
+                    <div class="two-column">
+                        <div>
+                            <label for="armWidth">Width:</label>
+                            <input type="range" id="armWidth" min="8" max="20" value="12">
+                            <div class="range-value" id="armWidthValue">12</div>
+                        </div>
+                        <div>
+                            <label for="armColor">Color:</label>
+                            <input type="color" id="armColor" value="#f39c12">
+                        </div>
+                    </div>
+                    
+                    <div class="arm-controls">
+                        <div class="arm-side">
+                            <h4>Left Arm</h4>
+                            <label for="leftShoulderAngle">Shoulder:</label>
+                            <input type="range" id="leftShoulderAngle" min="0" max="360" value="180">
+                            <div class="range-value" id="leftShoulderValue">180°</div>
+                            
+                            <label for="leftElbowAngle">Elbow:</label>
+                            <input type="range" id="leftElbowAngle" min="0" max="360" value="0">
+                            <div class="range-value" id="leftElbowValue">0°</div>
+                        </div>
+                        
+                        <div class="arm-side">
+                            <h4>Right Arm</h4>
+                            <label for="rightShoulderAngle">Shoulder:</label>
+                            <input type="range" id="rightShoulderAngle" min="0" max="360" value="0">
+                            <div class="range-value" id="rightShoulderValue">0°</div>
+                            
+                            <label for="rightElbowAngle">Elbow:</label>
+                            <input type="range" id="rightElbowAngle" min="0" max="360" value="0">
+                            <div class="range-value" id="rightElbowValue">0°</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h3>Legs with Knee Joints</h3>
+                    <div class="two-column">
+                        <div>
+                            <label for="thighLength">Thigh Length:</label>
+                            <input type="range" id="thighLength" min="30" max="70" value="45">
+                            <div class="range-value" id="thighLengthValue">45</div>
+                        </div>
+                        <div>
+                            <label for="shinLength">Shin Length:</label>
+                            <input type="range" id="shinLength" min="30" max="70" value="40">
+                            <div class="range-value" id="shinLengthValue">40</div>
+                        </div>
+                    </div>
+                    
+                    <div class="two-column">
+                        <div>
+                            <label for="legWidth">Width:</label>
+                            <input type="range" id="legWidth" min="12" max="25" value="18">
+                            <div class="range-value" id="legWidthValue">18</div>
+                        </div>
+                        <div>
+                            <label for="legColor">Color:</label>
+                            <input type="color" id="legColor" value="#2ecc71">
+                        </div>
+                    </div>
+                    
+                    <div class="leg-controls">
+                        <div class="leg-side">
+                            <h4>Left Knee</h4>
+                            <label for="leftKneeAngle">Bend (0-150°):</label>
+                            <input type="range" id="leftKneeAngle" min="0" max="150" value="0">
+                            <div class="range-value" id="leftKneeValue">0°</div>
+                        </div>
+                        
+                        <div class="leg-side">
+                            <h4>Right Knee</h4>
+                            <label for="rightKneeAngle">Bend (0-150°):</label>
+                            <input type="range" id="rightKneeAngle" min="0" max="150" value="0">
+                            <div class="range-value" id="rightKneeValue">0°</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h3>Combat Accessories</h3>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="hasShoulderLasers">
+                        <label for="hasShoulderLasers">Shoulder-Mounted Lasers</label>
+                    </div>
+                    <div class="accessory-detail hidden" id="laserControls">
+                        <div class="two-column">
+                            <div>
+                                <label for="laserSize">Size:</label>
+                                <input type="range" id="laserSize" min="5" max="20" value="10">
+                                <div class="range-value" id="laserSizeValue">10</div>
+                            </div>
+                            <div>
+                                <label for="laserColor">Color:</label>
+                                <input type="color" id="laserColor" value="#ff0000">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="hasGuns">
+                        <label for="hasGuns">Hand Weapons</label>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h3>Tech Accessories</h3>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="hasAccessPanel">
+                        <label for="hasAccessPanel">Chest Access Panel</label>
+                    </div>
+                    <div class="accessory-detail hidden" id="panelControls">
+                        <div class="two-column">
+                            <div>
+                                <label for="panelPosition">Vertical Position:</label>
+                                <input type="range" id="panelPosition" min="20" max="80" value="50">
+                                <div class="range-value" id="panelPositionValue">50%</div>
+                            </div>
+                            <div>
+                                <label for="panelColor">Color:</label>
+                                <input type="color" id="panelColor" value="#34495e">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="hasAntenna">
+                        <label for="hasAntenna">Communication Antenna</label>
+                    </div>
+                    <div class="accessory-detail hidden" id="antennaControls">
+                        <div class="two-column">
+                            <div>
+                                <label for="antennaHeight">Height:</label>
+                                <input type="range" id="antennaHeight" min="10" max="40" value="20">
+                                <div class="range-value" id="antennaHeightValue">20</div>
+                            </div>
+                            <div>
+                                <label for="antennaStyle">Style:</label>
+                                <select id="antennaStyle">
+                                    <option value="straight">Straight</option>
+                                    <option value="zigzag">Zigzag</option>
+                                    <option value="coil">Coil</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="hasChestDisplay">
+                        <label for="hasChestDisplay">Chest Display Screen</label>
+                    </div>
+                    <div class="accessory-detail hidden" id="displayControls">
+                        <div class="two-column">
+                            <div>
+                                <label for="displayColor">Screen Color:</label>
+                                <input type="color" id="displayColor" value="#00ff00">
+                            </div>
+                            <div>
+                                <label for="displayPattern">Pattern:</label>
+                                <select id="displayPattern">
+                                    <option value="grid">Grid</option>
+                                    <option value="waves">Waves</option>
+                                    <option value="bars">Bars</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h3>Utility & Wiring</h3>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="hasWires">
+                        <label for="hasWires">Connecting Wires</label>
+                    </div>
+                    <div class="accessory-detail hidden" id="wireControls">
+                        <div class="two-column">
+                            <div>
+                                <label for="wireColor">Color:</label>
+                                <input type="color" id="wireColor" value="#f39c12">
+                            </div>
+                            <div>
+                                <label for="wireThickness">Thickness:</label>
+                                <input type="range" id="wireThickness" min="1" max="5" value="2">
+                                <div class="range-value" id="wireThicknessValue">2</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="hasUtilityBelt">
+                        <label for="hasUtilityBelt">Utility Belt</label>
+                    </div>
+                    <div class="accessory-detail hidden" id="beltControls">
+                        <label for="beltColor">Belt Color:</label>
+                        <input type="color" id="beltColor" value="#8b4513">
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h3>Classic Accessories</h3>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="hasGlasses">
+                        <label for="hasGlasses">Glasses</label>
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="hasShoes">
+                        <label for="hasShoes">Shoes</label>
+                    </div>
+                    <div class="accessory-detail hidden" id="shoeControls">
+                        <label for="shoeColor">Shoe Color:</label>
+                        <input type="color" id="shoeColor" value="#8b4513">
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="hasLights">
+                        <label for="hasLights">Status Lights</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="canvas-container">
+                <div class="canvas-wrapper">
+                    <div class="robot-name" id="displayName">UltraBot V7</div>
+                    <canvas id="robotCanvas" width="600" height="700"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class RobotBuilderV7 {
+            constructor() {
+                this.canvas = document.getElementById('robotCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.setupCanvasSize();
+                
+                this.robot = {
+                    name: 'UltraBot V7',
+                    head: { shape: 'round', size: 50, color: '#3498db' },
+                    neck: { length: 15, color: '#95a5a6' },
+                    mouth: { expression: 'flat' },
+                    body: { width: 80, height: 100, color: '#e74c3c' },
+                    arms: { 
+                        upperLength: 45, 
+                        forearmLength: 40, 
+                        width: 12, 
+                        color: '#f39c12',
+                        left: { shoulderAngle: 180, elbowAngle: 0 },
+                        right: { shoulderAngle: 0, elbowAngle: 0 }
+                    },
+                    legs: { 
+                        thighLength: 45, 
+                        shinLength: 40, 
+                        width: 18, 
+                        color: '#2ecc71',
+                        left: { kneeAngle: 0 },
+                        right: { kneeAngle: 0 }
+                    },
+                    accessories: {
+                        glasses: false,
+                        shoes: false,
+                        guns: false,
+                        lights: false,
+                        shoulderLasers: false,
+                        accessPanel: false,
+                        antenna: false,
+                        chestDisplay: false,
+                        wires: false,
+                        utilityBelt: false,
+                        shoeColor: '#8b4513',
+                        laserSize: 10,
+                        laserColor: '#ff0000',
+                        panelPosition: 50,
+                        panelColor: '#34495e',
+                        antennaHeight: 20,
+                        antennaStyle: 'straight',
+                        displayColor: '#00ff00',
+                        displayPattern: 'grid',
+                        wireColor: '#f39c12',
+                        wireThickness: 2,
+                        beltColor: '#8b4513'
+                    }
+                };
+                
+                this.setupEventListeners();
+                this.drawRobot();
+                this.setupWindowResize();
+            }
+            
+            setupCanvasSize() {
+                this.centerX = this.canvas.width / 2;
+                this.centerY = this.canvas.height / 2;
+            }
+            
+            setupWindowResize() {
+                window.addEventListener('resize', () => {
+                    this.setupCanvasSize();
+                    this.drawRobot();
+                });
+            }
+            
+            setupEventListeners() {
+                // Basic robot controls
+                document.getElementById('robotName').addEventListener('input', (e) => {
+                    this.robot.name = e.target.value;
+                    document.getElementById('displayName').textContent = e.target.value || 'UltraBot V7';
+                });
+                
+                // Head controls
+                this.setupSliderControl('headSize', 'head.size', 'headSizeValue');
+                this.setupColorControl('headColor', 'head.color');
+                this.setupSelectControl('headShape', 'head.shape');
+                this.setupSelectControl('mouthExpression', 'mouth.expression', (value) => {
+                    this.updateExpressionPreview(value);
+                });
+                
+                // Neck controls
+                this.setupSliderControl('neckLength', 'neck.length', 'neckLengthValue');
+                this.setupColorControl('neckColor', 'neck.color');
+                
+                // Body controls
+                this.setupSliderControl('bodyWidth', 'body.width', 'bodyWidthValue');
+                this.setupSliderControl('bodyHeight', 'body.height', 'bodyHeightValue');
+                this.setupColorControl('bodyColor', 'body.color');
+                
+                // Arm controls
+                this.setupSliderControl('armLength', 'arms.upperLength', 'armLengthValue');
+                this.setupSliderControl('forearmLength', 'arms.forearmLength', 'forearmLengthValue');
+                this.setupSliderControl('armWidth', 'arms.width', 'armWidthValue');
+                this.setupColorControl('armColor', 'arms.color');
+                
+                this.setupSliderControl('leftShoulderAngle', 'arms.left.shoulderAngle', 'leftShoulderValue', '°');
+                this.setupSliderControl('leftElbowAngle', 'arms.left.elbowAngle', 'leftElbowValue', '°');
+                this.setupSliderControl('rightShoulderAngle', 'arms.right.shoulderAngle', 'rightShoulderValue', '°');
+                this.setupSliderControl('rightElbowAngle', 'arms.right.elbowAngle', 'rightElbowValue', '°');
+                
+                // Leg controls
+                this.setupSliderControl('thighLength', 'legs.thighLength', 'thighLengthValue');
+                this.setupSliderControl('shinLength', 'legs.shinLength', 'shinLengthValue');
+                this.setupSliderControl('legWidth', 'legs.width', 'legWidthValue');
+                this.setupColorControl('legColor', 'legs.color');
+                
+                this.setupSliderControl('leftKneeAngle', 'legs.left.kneeAngle', 'leftKneeValue', '°');
+                this.setupSliderControl('rightKneeAngle', 'legs.right.kneeAngle', 'rightKneeValue', '°');
+                
+                // Accessory controls
+                this.setupAccessoryControl('hasShoulderLasers', 'shoulderLasers', 'laserControls');
+                this.setupAccessoryControl('hasGuns', 'guns');
+                this.setupAccessoryControl('hasAccessPanel', 'accessPanel', 'panelControls');
+                this.setupAccessoryControl('hasAntenna', 'antenna', 'antennaControls');
+                this.setupAccessoryControl('hasChestDisplay', 'chestDisplay', 'displayControls');
+                this.setupAccessoryControl('hasWires', 'wires', 'wireControls');
+                this.setupAccessoryControl('hasUtilityBelt', 'utilityBelt', 'beltControls');
+                this.setupAccessoryControl('hasGlasses', 'glasses');
+                this.setupAccessoryControl('hasShoes', 'shoes', 'shoeControls');
+                this.setupAccessoryControl('hasLights', 'lights');
+                
+                // Accessory detail controls
+                this.setupSliderControl('laserSize', 'accessories.laserSize', 'laserSizeValue');
+                this.setupColorControl('laserColor', 'accessories.laserColor');
+                this.setupSliderControl('panelPosition', 'accessories.panelPosition', 'panelPositionValue', '%');
+                this.setupColorControl('panelColor', 'accessories.panelColor');
+                this.setupSliderControl('antennaHeight', 'accessories.antennaHeight', 'antennaHeightValue');
+                this.setupSelectControl('antennaStyle', 'accessories.antennaStyle');
+                this.setupColorControl('displayColor', 'accessories.displayColor');
+                this.setupSelectControl('displayPattern', 'accessories.displayPattern');
+                this.setupColorControl('wireColor', 'accessories.wireColor');
+                this.setupSliderControl('wireThickness', 'accessories.wireThickness', 'wireThicknessValue');
+                this.setupColorControl('beltColor', 'accessories.beltColor');
+                this.setupColorControl('shoeColor', 'accessories.shoeColor');
+            }
+            
+            setupSliderControl(id, path, valueId, suffix = '') {
+                document.getElementById(id).addEventListener('input', (e) => {
+                    this.setNestedValue(path, parseInt(e.target.value));
+                    if (valueId) {
+                        document.getElementById(valueId).textContent = e.target.value + suffix;
+                    }
+                    this.drawRobot();
+                });
+            }
+            
+            setupColorControl(id, path) {
+                document.getElementById(id).addEventListener('input', (e) => {
+                    this.setNestedValue(path, e.target.value);
+                    this.drawRobot();
+                });
+            }
+            
+            setupSelectControl(id, path, callback = null) {
+                document.getElementById(id).addEventListener('change', (e) => {
+                    this.setNestedValue(path, e.target.value);
+                    if (callback) callback(e.target.value);
+                    this.drawRobot();
+                });
+            }
+            
+            setupAccessoryControl(checkboxId, accessoryPath, controlsId = null) {
+                document.getElementById(checkboxId).addEventListener('change', (e) => {
+                    this.setNestedValue(`accessories.${accessoryPath}`, e.target.checked);
+                    if (controlsId) {
+                        document.getElementById(controlsId).classList.toggle('hidden', !e.target.checked);
+                    }
+                    this.drawRobot();
+                });
+            }
+            
+            setNestedValue(path, value) {
+                const keys = path.split('.');
+                let obj = this.robot;
+                for (let i = 0; i < keys.length - 1; i++) {
+                    obj = obj[keys[i]];
+                }
+                obj[keys[keys.length - 1]] = value;
+            }
+            
+            updateExpressionPreview(expression) {
+                const preview = document.getElementById('expressionPreview');
+                const expressions = { smile: '😊', frown: '😞', flat: '😐' };
+                preview.textContent = expressions[expression] || '😐';
+            }
+            
+            drawRobot() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                const neckTopY = this.centerY - this.robot.body.height/2 - this.robot.neck.length;
+                const headY = neckTopY - this.robot.head.size/2;
+                const bodyY = this.centerY;
+                
+                // Draw from back to front for proper layering
+                if (this.robot.accessories.wires) this.drawWires(headY, bodyY);
+                this.drawBendableLegs(bodyY);
+                this.drawBody(bodyY);
+                if (this.robot.accessories.utilityBelt) this.drawUtilityBelt(bodyY);
+                if (this.robot.accessories.accessPanel) this.drawAccessPanel(bodyY);
+                if (this.robot.accessories.chestDisplay) this.drawChestDisplay(bodyY);
+                this.drawBendableArms(bodyY);
+                this.drawNeck(bodyY);
+                this.drawHead(headY);
+                if (this.robot.accessories.shoulderLasers) this.drawShoulderLasers(bodyY);
+                if (this.robot.accessories.antenna) this.drawAntenna(headY);
+                this.drawOtherAccessories(headY, bodyY);
+            }
+            
+            // All the drawing methods from V6 (keeping them identical for space)
+            drawBendableLegs(bodyY) {
+                this.ctx.fillStyle = this.robot.legs.color;
+                this.ctx.strokeStyle = '#2c3e50';
+                this.ctx.lineWidth = 2;
+                
+                const hipY = bodyY + this.robot.body.height/2;
+                const legSpacing = this.robot.body.width * 0.3;
+                
+                this.drawLeg(this.centerX - legSpacing, hipY, this.robot.legs.left.kneeAngle, 'left');
+                this.drawLeg(this.centerX + legSpacing, hipY, this.robot.legs.right.kneeAngle, 'right');
+            }
+            
+            drawLeg(hipX, hipY, kneeAngle, side) {
+                const thighLength = this.robot.legs.thighLength;
+                const shinLength = this.robot.legs.shinLength;
+                const width = this.robot.legs.width;
+                
+                const kneeX = hipX;
+                const kneeY = hipY + thighLength;
+                
+                const kneeRad = (kneeAngle * Math.PI) / 180;
+                const footX = kneeX + shinLength * Math.sin(kneeRad);
+                const footY = kneeY + shinLength * Math.cos(kneeRad);
+                
+                this.drawLegSegment(hipX, hipY, kneeX, kneeY, width);
+                this.drawLegSegment(kneeX, kneeY, footX, footY, width);
+                
+                this.ctx.beginPath();
+                this.ctx.arc(hipX, hipY, width/2 + 2, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.stroke();
+                
+                this.ctx.beginPath();
+                this.ctx.arc(kneeX, kneeY, width/2 + 1, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.stroke();
+                
+                this.ctx.beginPath();
+                this.ctx.arc(footX, footY, width/2, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.stroke();
+                
+                if (side === 'left') {
+                    this.leftFootX = footX;
+                    this.leftFootY = footY;
+                } else {
+                    this.rightFootX = footX;
+                    this.rightFootY = footY;
+                }
+            }
+            
+            drawLegSegment(x1, y1, x2, y2, width) {
+                const angle = Math.atan2(y2 - y1, x2 - x1);
+                const length = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+                
+                this.ctx.save();
+                this.ctx.translate(x1, y1);
+                this.ctx.rotate(angle);
+                
+                this.ctx.fillRect(0, -width/2, length, width);
+                this.ctx.strokeRect(0, -width/2, length, width);
+                
+                this.ctx.restore();
+            }
+            
+            drawShoulderLasers(bodyY) {
+                const shoulderY = bodyY - this.robot.body.height/4;
+                const shoulderOffset = this.robot.body.width/2 + 5;
+                const size = this.robot.accessories.laserSize;
+                
+                this.ctx.fillStyle = this.robot.accessories.laserColor;
+                this.ctx.strokeStyle = '#2c3e50';
+                this.ctx.lineWidth = 2;
+                
+                this.ctx.fillRect(this.centerX - shoulderOffset - size, shoulderY - size/2, size * 2, size);
+                this.ctx.strokeRect(this.centerX - shoulderOffset - size, shoulderY - size/2, size * 2, size);
+                
+                this.ctx.fillRect(this.centerX + shoulderOffset - size, shoulderY - size/2, size * 2, size);
+                this.ctx.strokeRect(this.centerX + shoulderOffset - size, shoulderY - size/2, size * 2, size);
+                
+                this.ctx.fillStyle = '#34495e';
+                const barrelLength = size/2;
+                
+                this.ctx.fillRect(this.centerX - shoulderOffset - size - barrelLength, shoulderY - 2, barrelLength, 4);
+                this.ctx.fillRect(this.centerX + shoulderOffset + size, shoulderY - 2, barrelLength, 4);
+            }
+            
+            drawAccessPanel(bodyY) {
+                const panelWidth = this.robot.body.width * 0.6;
+                const panelHeight = this.robot.body.height * 0.3;
+                const positionPercent = this.robot.accessories.panelPosition / 100;
+                const panelY = bodyY - this.robot.body.height/2 + (this.robot.body.height - panelHeight) * positionPercent;
+                
+                this.ctx.fillStyle = this.robot.accessories.panelColor;
+                this.ctx.strokeStyle = '#2c3e50';
+                this.ctx.lineWidth = 1;
+                
+                this.ctx.fillRect(this.centerX - panelWidth/2, panelY, panelWidth, panelHeight);
+                this.ctx.strokeRect(this.centerX - panelWidth/2, panelY, panelWidth, panelHeight);
+                
+                this.ctx.strokeStyle = '#7f8c8d';
+                this.ctx.lineWidth = 1;
+                for (let i = 1; i < 4; i++) {
+                    const lineX = this.centerX - panelWidth/2 + (panelWidth/4) * i;
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(lineX, panelY + 5);
+                    this.ctx.lineTo(lineX, panelY + panelHeight - 5);
+                    this.ctx.stroke();
+                }
+            }
+            
+            drawAntenna(headY) {
+                const startX = this.centerX;
+                const startY = headY - this.robot.head.size/2 - 5;
+                const height = this.robot.accessories.antennaHeight;
+                
+                this.ctx.strokeStyle = '#34495e';
+                this.ctx.lineWidth = 3;
+                this.ctx.lineCap = 'round';
+                
+                this.ctx.beginPath();
+                
+                switch (this.robot.accessories.antennaStyle) {
+                    case 'straight':
+                        this.ctx.moveTo(startX, startY);
+                        this.ctx.lineTo(startX, startY - height);
+                        break;
+                        
+                    case 'zigzag':
+                        this.ctx.moveTo(startX, startY);
+                        for (let i = 0; i < height; i += 5) {
+                            const x = startX + (i % 10 === 0 ? -3 : 3);
+                            this.ctx.lineTo(x, startY - i);
+                        }
+                        break;
+                        
+                    case 'coil':
+                        const coils = 8;
+                        const coilHeight = height / coils;
+                        this.ctx.moveTo(startX, startY);
+                        for (let i = 0; i <= coils; i++) {
+                            const angle = i * Math.PI;
+                            const x = startX + 4 * Math.sin(angle);
+                            const y = startY - i * coilHeight;
+                            this.ctx.lineTo(x, y);
+                        }
+                        break;
+                }
+                
+                this.ctx.stroke();
+                
+                this.ctx.fillStyle = '#e74c3c';
+                this.ctx.beginPath();
+                this.ctx.arc(startX, startY - height, 2, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
+            
+            drawChestDisplay(bodyY) {
+                const displayWidth = this.robot.body.width * 0.4;
+                const displayHeight = this.robot.body.height * 0.25;
+                const displayY = bodyY - displayHeight/2;
+                
+                this.ctx.fillStyle = '#2c3e50';
+                this.ctx.fillRect(this.centerX - displayWidth/2, displayY, displayWidth, displayHeight);
+                
+                this.ctx.fillStyle = this.robot.accessories.displayColor;
+                this.ctx.fillRect(this.centerX - displayWidth/2 + 2, displayY + 2, displayWidth - 4, displayHeight - 4);
+                
+                this.ctx.strokeStyle = '#34495e';
+                this.ctx.lineWidth = 1;
+                
+                switch (this.robot.accessories.displayPattern) {
+                    case 'grid':
+                        for (let i = 1; i < 4; i++) {
+                            const x = this.centerX - displayWidth/2 + (displayWidth/4) * i;
+                            this.ctx.beginPath();
+                            this.ctx.moveTo(x, displayY + 2);
+                            this.ctx.lineTo(x, displayY + displayHeight - 2);
+                            this.ctx.stroke();
+                        }
+                        for (let i = 1; i < 3; i++) {
+                            const y = displayY + (displayHeight/3) * i;
+                            this.ctx.beginPath();
+                            this.ctx.moveTo(this.centerX - displayWidth/2 + 2, y);
+                            this.ctx.lineTo(this.centerX + displayWidth/2 - 2, y);
+                            this.ctx.stroke();
+                        }
+                        break;
+                        
+                    case 'waves':
+                        this.ctx.beginPath();
+                        for (let x = 0; x < displayWidth - 4; x += 2) {
+                            const y = displayY + displayHeight/2 + 5 * Math.sin(x * 0.3);
+                            if (x === 0) this.ctx.moveTo(this.centerX - displayWidth/2 + 2 + x, y);
+                            else this.ctx.lineTo(this.centerX - displayWidth/2 + 2 + x, y);
+                        }
+                        this.ctx.stroke();
+                        break;
+                        
+                    case 'bars':
+                        for (let i = 0; i < 5; i++) {
+                            const barHeight = (Math.random() * 0.7 + 0.3) * (displayHeight - 8);
+                            this.ctx.fillStyle = '#34495e';
+                            this.ctx.fillRect(
+                                this.centerX - displayWidth/2 + 4 + i * (displayWidth - 8)/5,
+                                displayY + displayHeight - 4 - barHeight,
+                                (displayWidth - 16)/5,
+                                barHeight
+                            );
+                        }
+                        break;
+                }
+            }
+            
+            drawWires(headY, bodyY) {
+                this.ctx.strokeStyle = this.robot.accessories.wireColor;
+                this.ctx.lineWidth = this.robot.accessories.wireThickness;
+                this.ctx.lineCap = 'round';
+                
+                this.ctx.beginPath();
+                this.ctx.moveTo(this.centerX - 10, headY + this.robot.head.size/3);
+                this.ctx.quadraticCurveTo(this.centerX - 20, bodyY - this.robot.body.height/3, this.centerX - 5, bodyY - this.robot.body.height/4);
+                this.ctx.stroke();
+                
+                const shoulderY = bodyY - this.robot.body.height/4;
+                const bodyEdge = this.robot.body.width/2;
+                
+                this.ctx.beginPath();
+                this.ctx.moveTo(this.centerX - bodyEdge/2, shoulderY);
+                this.ctx.quadraticCurveTo(this.centerX - bodyEdge, shoulderY - 10, this.centerX - bodyEdge, shoulderY);
+                this.ctx.stroke();
+                
+                this.ctx.beginPath();
+                this.ctx.moveTo(this.centerX + bodyEdge/2, shoulderY);
+                this.ctx.quadraticCurveTo(this.centerX + bodyEdge, shoulderY - 10, this.centerX + bodyEdge, shoulderY);
+                this.ctx.stroke();
+            }
+            
+            drawUtilityBelt(bodyY) {
+                const beltY = bodyY + this.robot.body.height * 0.3;
+                const beltWidth = this.robot.body.width + 10;
+                
+                this.ctx.fillStyle = this.robot.accessories.beltColor;
+                this.ctx.fillRect(this.centerX - beltWidth/2, beltY - 4, beltWidth, 8);
+                
+                this.ctx.fillStyle = '#654321';
+                for (let i = 0; i < 3; i++) {
+                    const pouchX = this.centerX - 20 + i * 20;
+                    this.ctx.fillRect(pouchX - 6, beltY - 2, 12, 12);
+                    this.ctx.strokeRect(pouchX - 6, beltY - 2, 12, 12);
+                }
+            }
+            
+            drawNeck(bodyY) {
+                this.ctx.fillStyle = this.robot.neck.color;
+                this.ctx.strokeStyle = '#2c3e50';
+                this.ctx.lineWidth = 2;
+                
+                const neckWidth = this.robot.head.size * 0.4;
+                const neckStartY = bodyY - this.robot.body.height/2;
+                const neckEndY = neckStartY - this.robot.neck.length;
+                
+                this.ctx.fillRect(this.centerX - neckWidth/2, neckEndY, neckWidth, this.robot.neck.length);
+                this.ctx.strokeRect(this.centerX - neckWidth/2, neckEndY, neckWidth, this.robot.neck.length);
+            }
+            
+            drawHead(y) {
+                this.ctx.fillStyle = this.robot.head.color;
+                this.ctx.strokeStyle = '#2c3e50';
+                this.ctx.lineWidth = 2;
+                
+                const size = this.robot.head.size;
+                
+                switch(this.robot.head.shape) {
+                    case 'round':
+                        this.ctx.beginPath();
+                        this.ctx.arc(this.centerX, y, size/2, 0, Math.PI * 2);
+                        this.ctx.fill();
+                        this.ctx.stroke();
+                        break;
+                    case 'square':
+                        this.ctx.fillRect(this.centerX - size/2, y - size/2, size, size);
+                        this.ctx.strokeRect(this.centerX - size/2, y - size/2, size, size);
+                        break;
+                    case 'rectangular':
+                        this.ctx.fillRect(this.centerX - size/2, y - size/3, size, size * 0.7);
+                        this.ctx.strokeRect(this.centerX - size/2, y - size/3, size, size * 0.7);
+                        break;
+                }
+                
+                this.drawEyes(y);
+                this.drawMouth(y);
+            }
+            
+            drawEyes(headY) {
+                this.ctx.fillStyle = '#2c3e50';
+                const eyeSize = 4;
+                const eyeOffset = this.robot.head.size * 0.2;
+                
+                this.ctx.beginPath();
+                this.ctx.arc(this.centerX - eyeOffset, headY - 5, eyeSize, 0, Math.PI * 2);
+                this.ctx.fill();
+                
+                this.ctx.beginPath();
+                this.ctx.arc(this.centerX + eyeOffset, headY - 5, eyeSize, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
+            
+            drawMouth(headY) {
+                this.ctx.strokeStyle = '#2c3e50';
+                this.ctx.lineWidth = 3;
+                this.ctx.lineCap = 'round';
+                
+                const mouthWidth = this.robot.head.size * 0.3;
+                const mouthY = headY + this.robot.head.size * 0.15;
+                
+                this.ctx.beginPath();
+                
+                switch(this.robot.mouth.expression) {
+                    case 'smile':
+                        this.ctx.arc(this.centerX, mouthY - 8, mouthWidth/2, 0.2 * Math.PI, 0.8 * Math.PI);
+                        break;
+                    case 'frown':
+                        this.ctx.arc(this.centerX, mouthY + 8, mouthWidth/2, 1.2 * Math.PI, 1.8 * Math.PI);
+                        break;
+                    case 'flat':
+                    default:
+                        this.ctx.moveTo(this.centerX - mouthWidth/2, mouthY);
+                        this.ctx.lineTo(this.centerX + mouthWidth/2, mouthY);
+                        break;
+                }
+                
+                this.ctx.stroke();
+            }
+            
+            drawBody(y) {
+                this.ctx.fillStyle = this.robot.body.color;
+                this.ctx.strokeStyle = '#2c3e50';
+                this.ctx.lineWidth = 2;
+                
+                this.ctx.fillRect(
+                    this.centerX - this.robot.body.width/2,
+                    y - this.robot.body.height/2,
+                    this.robot.body.width,
+                    this.robot.body.height
+                );
+                
+                this.ctx.strokeRect(
+                    this.centerX - this.robot.body.width/2,
+                    y - this.robot.body.height/2,
+                    this.robot.body.width,
+                    this.robot.body.height
+                );
+            }
+            
+            drawBendableArms(bodyY) {
+                this.ctx.fillStyle = this.robot.arms.color;
+                this.ctx.strokeStyle = '#2c3e50';
+                this.ctx.lineWidth = 2;
+                
+                const shoulderY = bodyY - this.robot.body.height/4;
+                const bodyEdge = this.robot.body.width/2;
+                
+                this.drawArm(this.centerX - bodyEdge, shoulderY, this.robot.arms.left.shoulderAngle, this.robot.arms.left.elbowAngle, 'left');
+                this.drawArm(this.centerX + bodyEdge, shoulderY, this.robot.arms.right.shoulderAngle, this.robot.arms.right.elbowAngle, 'right');
+            }
+            
+            drawArm(shoulderX, shoulderY, shoulderAngle, elbowAngle, side) {
+                const upperLength = this.robot.arms.upperLength;
+                const forearmLength = this.robot.arms.forearmLength;
+                const width = this.robot.arms.width;
+                
+                const shoulderRad = (shoulderAngle * Math.PI) / 180;
+                const elbowX = shoulderX + upperLength * Math.cos(shoulderRad);
+                const elbowY = shoulderY + upperLength * Math.sin(shoulderRad);
+                
+                const forearmRad = shoulderRad + (elbowAngle * Math.PI) / 180;
+                const handX = elbowX + forearmLength * Math.cos(forearmRad);
+                const handY = elbowY + forearmLength * Math.sin(forearmRad);
+                
+                this.drawArmSegment(shoulderX, shoulderY, elbowX, elbowY, width);
+                this.drawArmSegment(elbowX, elbowY, handX, handY, width);
+                
+                this.ctx.beginPath();
+                this.ctx.arc(shoulderX, shoulderY, width/2 + 2, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.stroke();
+                
+                this.ctx.beginPath();
+                this.ctx.arc(elbowX, elbowY, width/2 + 1, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.stroke();
+                
+                this.ctx.beginPath();
+                this.ctx.arc(handX, handY, width/2, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.stroke();
+                
+                if (side === 'left') {
+                    this.leftHandX = handX;
+                    this.leftHandY = handY;
+                } else {
+                    this.rightHandX = handX;
+                    this.rightHandY = handY;
+                }
+            }
+            
+            drawArmSegment(x1, y1, x2, y2, width) {
+                const angle = Math.atan2(y2 - y1, x2 - x1);
+                const length = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+                
+                this.ctx.save();
+                this.ctx.translate(x1, y1);
+                this.ctx.rotate(angle);
+                
+                this.ctx.fillRect(0, -width/2, length, width);
+                this.ctx.strokeRect(0, -width/2, length, width);
+                
+                this.ctx.restore();
+            }
+            
+            drawOtherAccessories(headY, bodyY) {
+                if (this.robot.accessories.glasses) this.drawGlasses(headY);
+                if (this.robot.accessories.shoes) this.drawShoes();
+                if (this.robot.accessories.guns) this.drawGuns();
+                if (this.robot.accessories.lights) this.drawLights(headY, bodyY);
+            }
+            
+            drawGlasses(headY) {
+                this.ctx.strokeStyle = '#2c3e50';
+                this.ctx.lineWidth = 3;
+                
+                const glassSize = this.robot.head.size * 0.3;
+                const glassOffset = this.robot.head.size * 0.25;
+                
+                this.ctx.beginPath();
+                this.ctx.arc(this.centerX - glassOffset, headY, glassSize, 0, Math.PI * 2);
+                this.ctx.stroke();
+                
+                this.ctx.beginPath();
+                this.ctx.arc(this.centerX + glassOffset, headY, glassSize, 0, Math.PI * 2);
+                this.ctx.stroke();
+                
+                this.ctx.beginPath();
+                this.ctx.moveTo(this.centerX - glassOffset + glassSize, headY);
+                this.ctx.lineTo(this.centerX + glassOffset - glassSize, headY);
+                this.ctx.stroke();
+            }
+            
+            drawShoes() {
+                if (!this.leftFootX || !this.rightFootX) return;
+                
+                this.ctx.fillStyle = this.robot.accessories.shoeColor;
+                this.ctx.strokeStyle = '#2c3e50';
+                this.ctx.lineWidth = 2;
+                
+                const shoeWidth = this.robot.legs.width + 10;
+                const shoeHeight = 15;
+                
+                this.ctx.fillRect(this.leftFootX - shoeWidth/2, this.leftFootY, shoeWidth, shoeHeight);
+                this.ctx.strokeRect(this.leftFootX - shoeWidth/2, this.leftFootY, shoeWidth, shoeHeight);
+                
+                this.ctx.fillRect(this.rightFootX - shoeWidth/2, this.rightFootY, shoeWidth, shoeHeight);
+                this.ctx.strokeRect(this.rightFootX - shoeWidth/2, this.rightFootY, shoeWidth, shoeHeight);
+            }
+            
+            drawGuns() {
+                if (!this.leftHandX || !this.rightHandX) return;
+                
+                this.ctx.fillStyle = '#34495e';
+                this.ctx.strokeStyle = '#2c3e50';
+                this.ctx.lineWidth = 2;
+                
+                const gunLength = 25;
+                const gunWidth = 8;
+                
+                this.ctx.fillRect(this.leftHandX - gunLength/2, this.leftHandY - gunWidth/2, gunLength, gunWidth);
+                this.ctx.strokeRect(this.leftHandX - gunLength/2, this.leftHandY - gunWidth/2, gunLength, gunWidth);
+                
+                this.ctx.fillRect(this.rightHandX - gunLength/2, this.rightHandY - gunWidth/2, gunLength, gunWidth);
+                this.ctx.strokeRect(this.rightHandX - gunLength/2, this.rightHandY - gunWidth/2, gunLength, gunWidth);
+            }
+            
+            drawLights(headY, bodyY) {
+                this.ctx.fillStyle = '#ffff00';
+                this.ctx.strokeStyle = '#ffa500';
+                this.ctx.lineWidth = 2;
+                
+                const lightSize = 6;
+                
+                this.ctx.beginPath();
+                this.ctx.arc(this.centerX - this.robot.head.size/3, headY - this.robot.head.size/3, lightSize, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.stroke();
+                
+                this.ctx.beginPath();
+                this.ctx.arc(this.centerX + this.robot.head.size/3, headY - this.robot.head.size/3, lightSize, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.stroke();
+                
+                this.ctx.beginPath();
+                this.ctx.arc(this.centerX, bodyY - this.robot.body.height/3, lightSize, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.stroke();
+                
+                this.ctx.beginPath();
+                this.ctx.arc(this.centerX, bodyY + this.robot.body.height/3, lightSize, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.stroke();
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            new RobotBuilderV7();
+        });
+    </script>
+</body>
+</html>

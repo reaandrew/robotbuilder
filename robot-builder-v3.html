@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robot Builder V3 - 360° Arm Control</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(45deg, #2c3e50, #34495e);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .main-content {
+            display: flex;
+            min-height: 600px;
+        }
+        
+        .controls {
+            width: 320px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-right: 1px solid #dee2e6;
+            overflow-y: auto;
+            max-height: 600px;
+        }
+        
+        .canvas-container {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #ffffff;
+        }
+        
+        canvas {
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .control-group {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .control-group h3 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 5px;
+        }
+        
+        label {
+            display: block;
+            margin: 8px 0 3px 0;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        
+        input[type="color"] {
+            height: 40px;
+            cursor: pointer;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+        }
+        
+        input[type="checkbox"] {
+            width: auto;
+            margin-right: 8px;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+        }
+        
+        .robot-name {
+            text-align: center;
+            margin: 10px 0;
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .range-value {
+            font-size: 12px;
+            color: #666;
+            text-align: right;
+        }
+        
+        .arm-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .arm-side {
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 5px;
+            background: #f9f9f9;
+        }
+        
+        .arm-side h4 {
+            margin: 0 0 8px 0;
+            font-size: 14px;
+            color: #2c3e50;
+        }
+        
+        .version-badge {
+            background: #e74c3c;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 Robot Builder V3 <span class="version-badge">360°</span></h1>
+            <p>Create and customize your own robot with full 360° arm control!</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="controls">
+                <div class="control-group">
+                    <h3>Robot Name</h3>
+                    <label for="robotName">Name:</label>
+                    <input type="text" id="robotName" value="My Robot V3" placeholder="Enter robot name">
+                </div>
+                
+                <div class="control-group">
+                    <h3>Head</h3>
+                    <label for="headShape">Shape:</label>
+                    <select id="headShape">
+                        <option value="round">Round</option>
+                        <option value="square">Square</option>
+                        <option value="rectangular">Rectangular</option>
+                    </select>
+                    
+                    <label for="headSize">Size:</label>
+                    <input type="range" id="headSize" min="30" max="80" value="50">
+                    <div class="range-value" id="headSizeValue">50</div>
+                    
+                    <label for="headColor">Color:</label>
+                    <input type="color" id="headColor" value="#3498db">
+                </div>
+                
+                <div class="control-group">
+                    <h3>Body</h3>
+                    <label for="bodyWidth">Width:</label>
+                    <input type="range" id="bodyWidth" min="60" max="120" value="80">
+                    <div class="range-value" id="bodyWidthValue">80</div>
+                    
+                    <label for="bodyHeight">Height:</label>
+                    <input type="range" id="bodyHeight" min="80" max="150" value="100">
+                    <div class="range-value" id="bodyHeightValue">100</div>
+                    
+                    <label for="bodyColor">Color:</label>
+                    <input type="color" id="bodyColor" value="#e74c3c">
+                </div>
+                
+                <div class="control-group">
+                    <h3>Arms (360° Control)</h3>
+                    <label for="armLength">Upper Arm Length:</label>
+                    <input type="range" id="armLength" min="30" max="70" value="45">
+                    <div class="range-value" id="armLengthValue">45</div>
+                    
+                    <label for="forearmLength">Forearm Length:</label>
+                    <input type="range" id="forearmLength" min="25" max="60" value="40">
+                    <div class="range-value" id="forearmLengthValue">40</div>
+                    
+                    <label for="armWidth">Width:</label>
+                    <input type="range" id="armWidth" min="8" max="20" value="12">
+                    <div class="range-value" id="armWidthValue">12</div>
+                    
+                    <label for="armColor">Color:</label>
+                    <input type="color" id="armColor" value="#f39c12">
+                    
+                    <div class="arm-controls">
+                        <div class="arm-side">
+                            <h4>Left Arm</h4>
+                            <label for="leftShoulderAngle">Shoulder (0-360°):</label>
+                            <input type="range" id="leftShoulderAngle" min="0" max="360" value="180">
+                            <div class="range-value" id="leftShoulderValue">180°</div>
+                            
+                            <label for="leftElbowAngle">Elbow (0-360°):</label>
+                            <input type="range" id="leftElbowAngle" min="0" max="360" value="0">
+                            <div class="range-value" id="leftElbowValue">0°</div>
+                        </div>
+                        
+                        <div class="arm-side">
+                            <h4>Right Arm</h4>
+                            <label for="rightShoulderAngle">Shoulder (0-360°):</label>
+                            <input type="range" id="rightShoulderAngle" min="0" max="360" value="0">
+                            <div class="range-value" id="rightShoulderValue">0°</div>
+                            
+                            <label for="rightElbowAngle">Elbow (0-360°):</label>
+                            <input type="range" id="rightElbowAngle" min="0" max="360" value="0">
+                            <div class="range-value" id="rightElbowValue">0°</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h3>Legs</h3>
+                    <label for="legLength">Length:</label>
+                    <input type="range" id="legLength" min="60" max="120" value="80">
+                    <div class="range-value" id="legLengthValue">80</div>
+                    
+                    <label for="legWidth">Width:</label>
+                    <input type="range" id="legWidth" min="12" max="25" value="18">
+                    <div class="range-value" id="legWidthValue">18</div>
+                    
+                    <label for="legColor">Color:</label>
+                    <input type="color" id="legColor" value="#2ecc71">
+                </div>
+                
+                <div class="control-group">
+                    <h3>Accessories</h3>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="hasGlasses">
+                        <label for="hasGlasses">Glasses</label>
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="hasShoes">
+                        <label for="hasShoes">Shoes</label>
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="hasGuns">
+                        <label for="hasGuns">Guns</label>
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="hasLights">
+                        <label for="hasLights">Lights</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="canvas-container">
+                <div>
+                    <div class="robot-name" id="displayName">My Robot V3</div>
+                    <canvas id="robotCanvas" width="400" height="500"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class RobotBuilderV3 {
+            constructor() {
+                this.canvas = document.getElementById('robotCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.centerX = this.canvas.width / 2;
+                this.centerY = this.canvas.height / 2;
+                
+                this.robot = {
+                    name: 'My Robot V3',
+                    head: { shape: 'round', size: 50, color: '#3498db' },
+                    body: { width: 80, height: 100, color: '#e74c3c' },
+                    arms: { 
+                        upperLength: 45, 
+                        forearmLength: 40, 
+                        width: 12, 
+                        color: '#f39c12',
+                        left: { shoulderAngle: 180, elbowAngle: 0 },  // Left arm defaults to pointing left
+                        right: { shoulderAngle: 0, elbowAngle: 0 }    // Right arm defaults to pointing right
+                    },
+                    legs: { length: 80, width: 18, color: '#2ecc71' },
+                    accessories: {
+                        glasses: false,
+                        shoes: false,
+                        guns: false,
+                        lights: false
+                    }
+                };
+                
+                this.setupEventListeners();
+                this.drawRobot();
+            }
+            
+            setupEventListeners() {
+                document.getElementById('robotName').addEventListener('input', (e) => {
+                    this.robot.name = e.target.value;
+                    document.getElementById('displayName').textContent = e.target.value || 'My Robot V3';
+                });
+                
+                // Head controls
+                document.getElementById('headShape').addEventListener('change', (e) => {
+                    this.robot.head.shape = e.target.value;
+                    this.drawRobot();
+                });
+                
+                document.getElementById('headSize').addEventListener('input', (e) => {
+                    this.robot.head.size = parseInt(e.target.value);
+                    document.getElementById('headSizeValue').textContent = e.target.value;
+                    this.drawRobot();
+                });
+                
+                document.getElementById('headColor').addEventListener('input', (e) => {
+                    this.robot.head.color = e.target.value;
+                    this.drawRobot();
+                });
+                
+                // Body controls
+                document.getElementById('bodyWidth').addEventListener('input', (e) => {
+                    this.robot.body.width = parseInt(e.target.value);
+                    document.getElementById('bodyWidthValue').textContent = e.target.value;
+                    this.drawRobot();
+                });
+                
+                document.getElementById('bodyHeight').addEventListener('input', (e) => {
+                    this.robot.body.height = parseInt(e.target.value);
+                    document.getElementById('bodyHeightValue').textContent = e.target.value;
+                    this.drawRobot();
+                });
+                
+                document.getElementById('bodyColor').addEventListener('input', (e) => {
+                    this.robot.body.color = e.target.value;
+                    this.drawRobot();
+                });
+                
+                // Arm controls
+                document.getElementById('armLength').addEventListener('input', (e) => {
+                    this.robot.arms.upperLength = parseInt(e.target.value);
+                    document.getElementById('armLengthValue').textContent = e.target.value;
+                    this.drawRobot();
+                });
+                
+                document.getElementById('forearmLength').addEventListener('input', (e) => {
+                    this.robot.arms.forearmLength = parseInt(e.target.value);
+                    document.getElementById('forearmLengthValue').textContent = e.target.value;
+                    this.drawRobot();
+                });
+                
+                document.getElementById('armWidth').addEventListener('input', (e) => {
+                    this.robot.arms.width = parseInt(e.target.value);
+                    document.getElementById('armWidthValue').textContent = e.target.value;
+                    this.drawRobot();
+                });
+                
+                document.getElementById('armColor').addEventListener('input', (e) => {
+                    this.robot.arms.color = e.target.value;
+                    this.drawRobot();
+                });
+                
+                // Left arm bend controls (360°)
+                document.getElementById('leftShoulderAngle').addEventListener('input', (e) => {
+                    this.robot.arms.left.shoulderAngle = parseInt(e.target.value);
+                    document.getElementById('leftShoulderValue').textContent = e.target.value + '°';
+                    this.drawRobot();
+                });
+                
+                document.getElementById('leftElbowAngle').addEventListener('input', (e) => {
+                    this.robot.arms.left.elbowAngle = parseInt(e.target.value);
+                    document.getElementById('leftElbowValue').textContent = e.target.value + '°';
+                    this.drawRobot();
+                });
+                
+                // Right arm bend controls (360°)
+                document.getElementById('rightShoulderAngle').addEventListener('input', (e) => {
+                    this.robot.arms.right.shoulderAngle = parseInt(e.target.value);
+                    document.getElementById('rightShoulderValue').textContent = e.target.value + '°';
+                    this.drawRobot();
+                });
+                
+                document.getElementById('rightElbowAngle').addEventListener('input', (e) => {
+                    this.robot.arms.right.elbowAngle = parseInt(e.target.value);
+                    document.getElementById('rightElbowValue').textContent = e.target.value + '°';
+                    this.drawRobot();
+                });
+                
+                // Leg controls
+                document.getElementById('legLength').addEventListener('input', (e) => {
+                    this.robot.legs.length = parseInt(e.target.value);
+                    document.getElementById('legLengthValue').textContent = e.target.value;
+                    this.drawRobot();
+                });
+                
+                document.getElementById('legWidth').addEventListener('input', (e) => {
+                    this.robot.legs.width = parseInt(e.target.value);
+                    document.getElementById('legWidthValue').textContent = e.target.value;
+                    this.drawRobot();
+                });
+                
+                document.getElementById('legColor').addEventListener('input', (e) => {
+                    this.robot.legs.color = e.target.value;
+                    this.drawRobot();
+                });
+                
+                // Accessory controls
+                document.getElementById('hasGlasses').addEventListener('change', (e) => {
+                    this.robot.accessories.glasses = e.target.checked;
+                    this.drawRobot();
+                });
+                
+                document.getElementById('hasShoes').addEventListener('change', (e) => {
+                    this.robot.accessories.shoes = e.target.checked;
+                    this.drawRobot();
+                });
+                
+                document.getElementById('hasGuns').addEventListener('change', (e) => {
+                    this.robot.accessories.guns = e.target.checked;
+                    this.drawRobot();
+                });
+                
+                document.getElementById('hasLights').addEventListener('change', (e) => {
+                    this.robot.accessories.lights = e.target.checked;
+                    this.drawRobot();
+                });
+            }
+            
+            drawRobot() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                const headY = this.centerY - this.robot.body.height/2 - this.robot.head.size/2 - 10;
+                const bodyY = this.centerY;
+                
+                this.drawLegs(bodyY);
+                this.drawBody(bodyY);
+                this.drawBendableArms(bodyY);
+                this.drawHead(headY);
+                this.drawAccessories(headY, bodyY);
+            }
+            
+            drawHead(y) {
+                this.ctx.fillStyle = this.robot.head.color;
+                this.ctx.strokeStyle = '#2c3e50';
+                this.ctx.lineWidth = 2;
+                
+                const size = this.robot.head.size;
+                
+                switch(this.robot.head.shape) {
+                    case 'round':
+                        this.ctx.beginPath();
+                        this.ctx.arc(this.centerX, y, size/2, 0, Math.PI * 2);
+                        this.ctx.fill();
+                        this.ctx.stroke();
+                        break;
+                        
+                    case 'square':
+                        this.ctx.fillRect(this.centerX - size/2, y - size/2, size, size);
+                        this.ctx.strokeRect(this.centerX - size/2, y - size/2, size, size);
+                        break;
+                        
+                    case 'rectangular':
+                        this.ctx.fillRect(this.centerX - size/2, y - size/3, size, size * 0.7);
+                        this.ctx.strokeRect(this.centerX - size/2, y - size/3, size, size * 0.7);
+                        break;
+                }
+                
+                this.drawEyes(y);
+            }
+            
+            drawEyes(headY) {
+                this.ctx.fillStyle = '#2c3e50';
+                const eyeSize = 4;
+                const eyeOffset = this.robot.head.size * 0.2;
+                
+                this.ctx.beginPath();
+                this.ctx.arc(this.centerX - eyeOffset, headY - 5, eyeSize, 0, Math.PI * 2);
+                this.ctx.fill();
+                
+                this.ctx.beginPath();
+                this.ctx.arc(this.centerX + eyeOffset, headY - 5, eyeSize, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
+            
+            drawBody(y) {
+                this.ctx.fillStyle = this.robot.body.color;
+                this.ctx.strokeStyle = '#2c3e50';
+                this.ctx.lineWidth = 2;
+                
+                this.ctx.fillRect(
+                    this.centerX - this.robot.body.width/2,
+                    y - this.robot.body.height/2,
+                    this.robot.body.width,
+                    this.robot.body.height
+                );
+                
+                this.ctx.strokeRect(
+                    this.centerX - this.robot.body.width/2,
+                    y - this.robot.body.height/2,
+                    this.robot.body.width,
+                    this.robot.body.height
+                );
+            }
+            
+            drawBendableArms(bodyY) {
+                this.ctx.fillStyle = this.robot.arms.color;
+                this.ctx.strokeStyle = '#2c3e50';
+                this.ctx.lineWidth = 2;
+                
+                const shoulderY = bodyY - this.robot.body.height/4;
+                const bodyEdge = this.robot.body.width/2;
+                
+                // Draw left arm
+                this.drawArm(
+                    this.centerX - bodyEdge, 
+                    shoulderY, 
+                    this.robot.arms.left.shoulderAngle, 
+                    this.robot.arms.left.elbowAngle,
+                    'left'
+                );
+                
+                // Draw right arm
+                this.drawArm(
+                    this.centerX + bodyEdge, 
+                    shoulderY, 
+                    this.robot.arms.right.shoulderAngle, 
+                    this.robot.arms.right.elbowAngle,
+                    'right'
+                );
+            }
+            
+            drawArm(shoulderX, shoulderY, shoulderAngle, elbowAngle, side) {
+                const upperLength = this.robot.arms.upperLength;
+                const forearmLength = this.robot.arms.forearmLength;
+                const width = this.robot.arms.width;
+                
+                // Convert angles to radians (0-360 degrees)
+                const shoulderRad = (shoulderAngle * Math.PI) / 180;
+                
+                // Calculate elbow position
+                const elbowX = shoulderX + upperLength * Math.cos(shoulderRad);
+                const elbowY = shoulderY + upperLength * Math.sin(shoulderRad);
+                
+                // Calculate forearm angle (relative to upper arm for natural movement)
+                const forearmRad = shoulderRad + (elbowAngle * Math.PI) / 180;
+                
+                // Calculate hand position
+                const handX = elbowX + forearmLength * Math.cos(forearmRad);
+                const handY = elbowY + forearmLength * Math.sin(forearmRad);
+                
+                // Draw upper arm
+                this.drawArmSegment(shoulderX, shoulderY, elbowX, elbowY, width);
+                
+                // Draw forearm
+                this.drawArmSegment(elbowX, elbowY, handX, handY, width);
+                
+                // Draw shoulder joint
+                this.ctx.beginPath();
+                this.ctx.arc(shoulderX, shoulderY, width/2 + 2, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.stroke();
+                
+                // Draw elbow joint
+                this.ctx.beginPath();
+                this.ctx.arc(elbowX, elbowY, width/2 + 1, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.stroke();
+                
+                // Draw hand
+                this.ctx.beginPath();
+                this.ctx.arc(handX, handY, width/2, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.stroke();
+                
+                // Store hand position for accessories
+                if (side === 'left') {
+                    this.leftHandX = handX;
+                    this.leftHandY = handY;
+                } else {
+                    this.rightHandX = handX;
+                    this.rightHandY = handY;
+                }
+            }
+            
+            drawArmSegment(x1, y1, x2, y2, width) {
+                const angle = Math.atan2(y2 - y1, x2 - x1);
+                const length = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+                
+                this.ctx.save();
+                this.ctx.translate(x1, y1);
+                this.ctx.rotate(angle);
+                
+                this.ctx.fillRect(0, -width/2, length, width);
+                this.ctx.strokeRect(0, -width/2, length, width);
+                
+                this.ctx.restore();
+            }
+            
+            drawLegs(bodyY) {
+                this.ctx.fillStyle = this.robot.legs.color;
+                this.ctx.strokeStyle = '#2c3e50';
+                this.ctx.lineWidth = 2;
+                
+                const legStartY = bodyY + this.robot.body.height/2;
+                const legSpacing = this.robot.body.width * 0.3;
+                
+                this.ctx.fillRect(
+                    this.centerX - legSpacing - this.robot.legs.width/2,
+                    legStartY,
+                    this.robot.legs.width,
+                    this.robot.legs.length
+                );
+                
+                this.ctx.strokeRect(
+                    this.centerX - legSpacing - this.robot.legs.width/2,
+                    legStartY,
+                    this.robot.legs.width,
+                    this.robot.legs.length
+                );
+                
+                this.ctx.fillRect(
+                    this.centerX + legSpacing - this.robot.legs.width/2,
+                    legStartY,
+                    this.robot.legs.width,
+                    this.robot.legs.length
+                );
+                
+                this.ctx.strokeRect(
+                    this.centerX + legSpacing - this.robot.legs.width/2,
+                    legStartY,
+                    this.robot.legs.width,
+                    this.robot.legs.length
+                );
+            }
+            
+            drawAccessories(headY, bodyY) {
+                if (this.robot.accessories.glasses) {
+                    this.drawGlasses(headY);
+                }
+                
+                if (this.robot.accessories.shoes) {
+                    this.drawShoes(bodyY);
+                }
+                
+                if (this.robot.accessories.guns) {
+                    this.drawGuns();
+                }
+                
+                if (this.robot.accessories.lights) {
+                    this.drawLights(headY, bodyY);
+                }
+            }
+            
+            drawGlasses(headY) {
+                this.ctx.strokeStyle = '#2c3e50';
+                this.ctx.lineWidth = 3;
+                
+                const glassSize = this.robot.head.size * 0.3;
+                const glassOffset = this.robot.head.size * 0.25;
+                
+                this.ctx.beginPath();
+                this.ctx.arc(this.centerX - glassOffset, headY, glassSize, 0, Math.PI * 2);
+                this.ctx.stroke();
+                
+                this.ctx.beginPath();
+                this.ctx.arc(this.centerX + glassOffset, headY, glassSize, 0, Math.PI * 2);
+                this.ctx.stroke();
+                
+                this.ctx.beginPath();
+                this.ctx.moveTo(this.centerX - glassOffset + glassSize, headY);
+                this.ctx.lineTo(this.centerX + glassOffset - glassSize, headY);
+                this.ctx.stroke();
+            }
+            
+            drawShoes(bodyY) {
+                this.ctx.fillStyle = '#8b4513';
+                this.ctx.strokeStyle = '#2c3e50';
+                this.ctx.lineWidth = 2;
+                
+                const shoeY = bodyY + this.robot.body.height/2 + this.robot.legs.length;
+                const legSpacing = this.robot.body.width * 0.3;
+                const shoeWidth = this.robot.legs.width + 10;
+                const shoeHeight = 15;
+                
+                this.ctx.fillRect(
+                    this.centerX - legSpacing - shoeWidth/2,
+                    shoeY,
+                    shoeWidth,
+                    shoeHeight
+                );
+                
+                this.ctx.strokeRect(
+                    this.centerX - legSpacing - shoeWidth/2,
+                    shoeY,
+                    shoeWidth,
+                    shoeHeight
+                );
+                
+                this.ctx.fillRect(
+                    this.centerX + legSpacing - shoeWidth/2,
+                    shoeY,
+                    shoeWidth,
+                    shoeHeight
+                );
+                
+                this.ctx.strokeRect(
+                    this.centerX + legSpacing - shoeWidth/2,
+                    shoeY,
+                    shoeWidth,
+                    shoeHeight
+                );
+            }
+            
+            drawGuns() {
+                if (!this.leftHandX || !this.rightHandX) return;
+                
+                this.ctx.fillStyle = '#34495e';
+                this.ctx.strokeStyle = '#2c3e50';
+                this.ctx.lineWidth = 2;
+                
+                const gunLength = 25;
+                const gunWidth = 8;
+                
+                // Left gun
+                this.ctx.fillRect(
+                    this.leftHandX - gunLength/2,
+                    this.leftHandY - gunWidth/2,
+                    gunLength,
+                    gunWidth
+                );
+                
+                this.ctx.strokeRect(
+                    this.leftHandX - gunLength/2,
+                    this.leftHandY - gunWidth/2,
+                    gunLength,
+                    gunWidth
+                );
+                
+                // Right gun
+                this.ctx.fillRect(
+                    this.rightHandX - gunLength/2,
+                    this.rightHandY - gunWidth/2,
+                    gunLength,
+                    gunWidth
+                );
+                
+                this.ctx.strokeRect(
+                    this.rightHandX - gunLength/2,
+                    this.rightHandY - gunWidth/2,
+                    gunLength,
+                    gunWidth
+                );
+            }
+            
+            drawLights(headY, bodyY) {
+                this.ctx.fillStyle = '#ffff00';
+                this.ctx.strokeStyle = '#ffa500';
+                this.ctx.lineWidth = 2;
+                
+                const lightSize = 6;
+                
+                this.ctx.beginPath();
+                this.ctx.arc(this.centerX - this.robot.head.size/3, headY - this.robot.head.size/3, lightSize, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.stroke();
+                
+                this.ctx.beginPath();
+                this.ctx.arc(this.centerX + this.robot.head.size/3, headY - this.robot.head.size/3, lightSize, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.stroke();
+                
+                this.ctx.beginPath();
+                this.ctx.arc(this.centerX, bodyY - this.robot.body.height/3, lightSize, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.stroke();
+                
+                this.ctx.beginPath();
+                this.ctx.arc(this.centerX, bodyY + this.robot.body.height/3, lightSize, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.stroke();
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            new RobotBuilderV3();
+        });
+    </script>
+</body>
+</html>
